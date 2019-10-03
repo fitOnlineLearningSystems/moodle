@@ -20,27 +20,28 @@ var FITMOODLE = (function() {
 		},
 		powerUsers = [],
 		restrictionQuery,
-		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/';
+		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/',
+		currentURL = new URL(document.URL),
+		urlParams = new URLSearchParams(currentURL.search);
 
-	const urlParameters = getQueryParams(document.location.search),
-		unit = {
-			shortname: document.querySelector('span.media-body')
+	var unit = new function() {
+			this.shortname = document.querySelector('span.media-body')
 				? document.querySelector('span.media-body').innerText
-				: null,
-			id: urlParameters.id
-		},
-		user = {
-			userEmail: document.querySelector('.myprofileitem.email')
+				: null;
+			this.id = urlParams.has('id') ? urlParams.get('id') : 'Not a Moodle unit';
+		}(),
+		user = new function() {
+			this.userEmail = document.querySelector('.myprofileitem.email')
 				? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
-				: null,
-			userFullName: document.querySelector('.myprofileitem.fullname')
+				: null;
+			this.userFullName = document.querySelector('.myprofileitem.fullname')
 				? document.querySelector('.myprofileitem.fullname').innerText
-				: null,
-			userRestriction: getUserRestriction(this.userEmail, powerUsers, restrictionQuery),
-			userTurnedEditingOn: document.querySelector('body.editing') ? true : false
-		},
+				: null;
+			userRestriction = getUserRestriction(this.userEmail, powerUsers, restrictionQuery);
+			userTurnedEditingOn = document.querySelector('body.editing') ? true : false;
+		}(),
 		offering = new function() {
-			this.shortnameBlocks = unit.shortname.split('_');
+			this.shortnameBlocks = shortname.split('_');
 			this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 			this.teachingPeriods = this.shortnameBlocks[1].split('-');
 			this.campus = this.shortnameBlocks.length > 3 ? this.shortnameBlocks[2].split('-') : 'Not Applicable';
@@ -56,27 +57,14 @@ var FITMOODLE = (function() {
 					? [ ...this.callistaNodelist ].map((x) => x.innerText)
 					: this.addCallista.innerText;
 		}(),
-		buttonRequirement = {
-			showUnitGuide: offering.unitCodesArray[0].match(/\w{3}\d{4}/g) ? true : false,
-			showStudentPortal: offering.offeringTeachingFaculty === 'FIT' ? true : false,
-			showMyGrades: querySelector("a[data-key='grades']") ? true : false
-		},
-		externalLinks = {
-			studentPortal: offering.location === 'Campus' ? this.setMoodleUrl('38028') : this.setMoodleUrl('24532')
-		};
-
-	function getQueryParams(qs) {
-		qs = qs.split('+').join(' ');
-
-		var params = {},
-			tokens,
-			re = /[?&]?([^=]+)=([^&]*)/g;
-
-		while ((tokens = re.exec(qs))) {
-			params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-		}
-		return params;
-	}
+		buttonRequirement = new function() {
+			this.showUnitGuide = offering.unitCodes[0].match(/\w{3}\d{4}/g) ? true : false;
+			this.showStudentPortal = offering.teachingFaculty === 'FIT' ? true : false;
+			this.showMyGrades = document.querySelector("a[data-key='grades']") ? true : false;
+		}(),
+		externalLinks = new function() {
+			studentPortal: offering.location === 'Campus' ? buildMoodleViewUrl('38028') : buildMoodleViewUrl('24532');
+		}();
 
 	// Returns true if the user is part of list or a specefic query passed
 	function getUserRestriction(userEmail, powerUsers, query) {
@@ -91,6 +79,10 @@ var FITMOODLE = (function() {
 			console.log('@MS: restricted user = ', userEmail);
 			return true;
 		}
+	}
+
+	function buildMoodleViewUrl(id) {
+		return MoodleBaseUrl + id;
 	}
 
 	// returns Unit Guide Button info given Unit Code, Teaching Period, and Year
@@ -133,11 +125,14 @@ var FITMOODLE = (function() {
 	// methods are avaiable for use
 	return {
 		printMoodleShortname: function() {
+			console.log('Unit =');
 			console.log(unit);
+			console.log('User =');
 			console.log(user);
+			console.log('Offering =');
 			console.log(offering);
+			console.log('Callista =');
 			console.log(callista);
-			return this;
 		},
 		setMoodlePowerUsers: function(emialArray) {
 			if (Array.isArray(emialArray)) {
