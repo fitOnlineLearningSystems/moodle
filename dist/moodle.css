@@ -239,6 +239,11 @@ div.dimmed_text h6 {
 .format-grid .course-content ul.gridicons li img.new_activity {
 	margin-left: 160px !important;
 	margin-top: 97px !important;
+	height: 15px;
+	width: 15px;
+	display: table-cell;
+	border-radius: 50%;
+	background: #ef7701;
 }
 
 #back-to-top {
