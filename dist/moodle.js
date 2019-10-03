@@ -19,7 +19,7 @@ var FITMOODLE = (function() {
 			'MO-TP6': 'MO-TP6-01'
 		},
 		powerUsers = [],
-		restrictionQuery,
+		restrictionQuery = 'restrictions=off',
 		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/',
 		currentURL = new URL(document.URL),
 		urlParams = new URLSearchParams(currentURL.search);
