@@ -19,11 +19,11 @@ var FITMOODLE = (function() {
 			'MO-TP6': 'MO-TP6-01'
 		},
 		powerUsers = [],
-		restrictionQuery,
+		avoidRestrictionQuery = 'restriction=off',
 		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/',
-		unitguideSearchQuery = 'faculty=FACULTY+OF+INFORMATION+TECHNOLOGY';
-	(urlParams = new URLSearchParams(new URL(document.URL).search)),
-		(unit = new function() {
+		unitguideSearchQuery = 'faculty=FACULTY+OF+INFORMATION+TECHNOLOGY',
+		urlParams = new URLSearchParams(new URL(document.URL).search),
+		unit = new function() {
 			this.shortname = document.querySelector('span.media-body')
 				? document.querySelector('span.media-body').innerText
 				: null;
@@ -31,18 +31,21 @@ var FITMOODLE = (function() {
 			gradeUrl = document.querySelector("a[data-key='grades']")
 				? document.querySelector("a[data-key='grades']").getAttribute('href')
 				: null;
-		}()),
-		(user = new function() {
+		}(),
+		user = new function() {
 			this.email = document.querySelector('.myprofileitem.email')
 				? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
 				: null;
 			this.fullName = document.querySelector('.myprofileitem.fullname')
 				? document.querySelector('.myprofileitem.fullname').innerText
 				: null;
-			this.userRestriction = getUserRestriction(this.userEmail, powerUsers, restrictionQuery);
-			this.userTurnedEditingOn = document.querySelector('body.editing') ? true : false;
-		}()),
-		(offering = new function() {
+			this.restriction =
+				powerUsers.includes(this.email) || window.location.href.indexOf(avoidRestrictionQuery) > 0
+					? false
+					: true; // Returns true if the user is part of list or a specefic query passed
+			this.turnedEditingOn = document.querySelector('body.editing') ? true : false;
+		}(),
+		offering = new function() {
 			this.shortnameBlocks = unit.shortname.split('_');
 			this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 			this.teachingPeriodBlock = this.shortnameBlocks[1];
@@ -51,33 +54,21 @@ var FITMOODLE = (function() {
 			this.year = this.shortnameBlocks[this.shortnameBlocks.length - 1].split('-');
 			this.teachingFaculty = this.unitCodes[0].indexOf('MAT') > 0 ? 'Science' : 'FIT';
 			this.location = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? 'Monash Online' : 'Campus';
-		}()),
-		(callista = new function() {
+		}(),
+		callista = new function() {
 			this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
 			this.noCallista = document.querySelector('section.block_callista p');
 			this.Attachmet =
 				this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
-		}());
+		}();
 
 	// Specify the condition where a button is required or not
-	function buttonReq() {
+	function buttonRequired() {
 		return {
 			unitGuide: offering.unitCodes[0].match(/\w{3}\d{4}/g) && callista.nodelist.length > 1 ? true : false,
 			studentPortal: offering.teachingFaculty === 'FIT' ? true : false,
 			myGrades: document.querySelector("a[data-key='grades']") ? true : false
 		};
-	}
-
-	// Returns true if the user is part of list or a specefic query passed
-	function getUserRestriction(userEmail, powerUsers, query) {
-		if (powerUsers.includes(userEmail) || window.location.href.indexOf(query) > 0) {
-			// I am an allowed user
-			console.log('@MS: allowed user = ', userEmail);
-			return false;
-		} else {
-			console.log('@MS: restricted user = ', userEmail);
-			return true;
-		}
 	}
 
 	function buildMoodleViewUrl(id) {
