@@ -1,0 +1,25 @@
+{
+  "name": "moodle",
+  "version": "1.0.0",
+  "description": "//README.md\r # Generate docs using jsDoc\r ## A example",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fitOnlineLearningSystems/moodle.git"
+  },
+  "keywords": [
+    "moodle"
+  ],
+  "author": "milad.sayad@monash.edu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fitOnlineLearningSystems/moodle/issues"
+  },
+  "homepage": "https://github.com/fitOnlineLearningSystems/moodle#readme",
+  "dependencies": {
+    "jsdoc": "^3.6.3"
+  }
+}

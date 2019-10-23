@@ -1,6 +1,11 @@
+/**
+ * This library conatins all properties and methods to enhance Moodle capabailities at Monash Instance
+ * @author Milad Sayad <milad.sayad@monash.edu>
+ * @class
+ */
 var FITMOODLE = (function() {
-	// ***************************************************** Defaults variables ***************************************************** //
-
+	// test
+	// @param {string} id
 	var MoodleBaseUrl = 'https://lms.monash.edu',
 		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/',
 		unitguideSearchQuery = 'faculty=FACULTY+OF+INFORMATION+TECHNOLOGY',
@@ -25,8 +30,13 @@ var FITMOODLE = (function() {
 		powerUsers = [],
 		bypassRestrictionQuery;
 
-	// ***************************************************** Utilities ***************************************************** //
-
+	/**
+	* Returns value given the query string (in url)
+  * @constructs user
+	* @param {string} id
+	* @returns {object}
+ * @memberof module:FITMOODLE
+	*/
 	var getQueryVariable = function(variable) {
 		var query = window.location.search.substring(1);
 		var vars = query.split('&');
@@ -39,6 +49,12 @@ var FITMOODLE = (function() {
 		return false;
 	};
 
+	/**
+ * Returns url and text for Moodle Student Portal, given Moodle unit id
+ * @param {string} id
+ * @returns {object}
+ * @protected
+ */
 	var moodlePortalButton = function(id) {
 		if (id) {
 			return {
@@ -53,7 +69,12 @@ var FITMOODLE = (function() {
 		}
 	};
 
-	// returns Unit Guide Button info given Unit Code, Teaching Period, and Year
+	/**
+ * Returns url and text for Moodle Student Portal, given Unit Code, Teaching Period, and Year
+ * @param {string} id
+ * @returns {object}
+ * @protected
+ */
 	var unitGuideButton = function(unitCode, tpCode, tpYear) {
 		if (unitCode && tpCode && tpYear) {
 			return {
@@ -75,7 +96,12 @@ var FITMOODLE = (function() {
 		}
 	};
 
-	// Add a button
+	/**
+ * Add a button
+ * @param {string} id
+ * @returns {object}
+ * @protected
+ */
 	function addButtonToElement({
 		parentElementId = 'ExternalLink',
 		elementClass = 'btn btn-link btn-sm btn-block quick-link-button',
@@ -91,14 +117,17 @@ var FITMOODLE = (function() {
 			elementText +
 			'</a>';
 	}
-
+	/**
+     * Blend two colors together.
+     * @param {string} color1 - The first color, in hexadecimal format.
+     * @param {string} color2 - The second color, in hexadecimal format.
+     * @return {string} The blended color.
+     */
 	function consoleHealthCheck(object, text) {
 		!Object.values(object).every((o) => o === null)
 			? console.log('%c PASSED ', 'color: white; background-color: #95B46A', text, object)
 			: console.log('%c ERROR ', 'color: white; background-color: #D33F49', text, object);
 	}
-
-	// ***************************************************** Variables ***************************************************** //
 
 	// Scraped & Dependent variables
 	const unit = {
@@ -148,16 +177,26 @@ var FITMOODLE = (function() {
 	}();
 	consoleHealthCheck(offering, '@MS: Offering =');
 
-	// ************************************************ Public Methods ***************************************************** //
-	// methods are avaiable for use
+	/**
+ * The methods are available to all.
+ * @public
+ * @class
+ */
 	return {
+		/**
+     * Blend two colors together.
+     * @param {string} color1 - The first color, in hexadecimal format.
+     * @param {string} color23 - The second color, in hexadecimal format.
+     * @return {string} The blended color.
+     */
 		setMoodlePowerUsers: function(emialArray) {
 			if (Array.isArray(emialArray)) powerUsers = emialArray;
 			consoleHealthCheck(powerUsers, '@MS: Power Users =');
 			return this;
 		},
-		setBypassRestriction: function (queryString) {
-			if (typeof queryString === 'string' || queryString instanceof String) this.bypassRestrictionQuery = queryString;
+		setBypassRestriction: function(queryString) {
+			if (typeof queryString === 'string' || queryString instanceof String)
+				this.bypassRestrictionQuery = queryString;
 			return this;
 		},
 		addStudentPortal: function() {
@@ -338,6 +377,6 @@ var FITMOODLE = (function() {
 				$('section#region-main').removeClass('has-blocks');
 			}
 			return this;
-		},
+		}
 	};
 })();
