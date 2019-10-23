@@ -1,5 +1,5 @@
 var FITMOODLE = (function() {
-	// Defaults variables
+	// ***************************************************** Defaults variables ***************************************************** //
 
 	var MoodleBaseUrl = 'https://lms.monash.edu',
 		tpDictonary = {
@@ -24,163 +24,185 @@ var FITMOODLE = (function() {
 		avoidRestrictionQuery = 'restriction=off',
 		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/',
 		unitguideSearchQuery = 'faculty=FACULTY+OF+INFORMATION+TECHNOLOGY';
+	
+		// ***************************************************** Utilities ***************************************************** //
 
-	var urlParams = new URLSearchParams(new URL(document.URL).search);
-	var unit = new function() {
-		this.shortname = document.querySelector('span.media-body')
+		var getQueryVariable = function(variable) {
+			var query = window.location.search.substring(1);
+			var vars = query.split('&');
+			for (var i = 0; i < vars.length; i++) {
+				var pair = vars[i].split('=');
+				if (pair[0] == variable) {
+					return pair[1];
+				}
+			}
+			return false;
+		};
+	
+		var moodlePortalButton = function(id) {
+			if (id) {
+				return {
+					elementHref: MoodleBaseUrl + "/course/view.php?id=" + id,
+					elementText: 'IT Student Portal'
+				};
+			} else {
+				return {
+					elementHref: MoodleBaseUrl,
+					elementText: 'Moodle Dashboard'
+				};
+			}
+		};
+	
+		// returns Unit Guide Button info given Unit Code, Teaching Period, and Year
+		var unitGuideButton = function(unitCode, tpCode, tpYear) {
+			if (unitCode && tpCode && tpYear) {
+				return {
+					elementHref:
+						unitguideBaseUrl +
+						'view?unitCode=' +
+						unitCode +
+						'&tpCode=' +
+						tpDictonary[tpCode] +
+						'&tpYear=' +
+						tpYear,
+					elementText: unitCode + ' Unit Guide'
+				};
+			} else {
+				return {
+					elementHref: unitguideBaseUrl + 'refine?' + unitguideSearchQuery,
+					elementText: 'Search Unit Guides'
+				};
+			}
+		};
+	
+		// Add a button
+		function addButtonToElement({
+			parentElementId = 'ExternalLink',
+			elementClass = 'btn btn-link btn-sm btn-block quick-link-button',
+			elementHref,
+			elementText
+		}) {
+			document.getElementById(parentElementId).innerHTML +=
+				'<a class="' +
+				elementClass +
+				'" href="' +
+				elementHref +
+				'" role="button" target="_blank">' +
+				elementText +
+				'</a>';
+		}
+	
+		function consoleHealthCheck(object, text) {
+			!Object.values(object).every((o) => o === null)
+				? console.log('%c PASSED ', 'color: white; background-color: #95B46A', text, object)
+				: console.log('%c ERROR ', 'color: white; background-color: #D33F49', text, object);
+		}
+	
+	// ***************************************************** Variables ***************************************************** //
+
+	// Scraped & Dependent variables
+	const unit = {
+		shortname: document.querySelector('span.media-body')
 			? document.querySelector('span.media-body').innerText
-			: null;
-		this.id = urlParams.has('id') ? urlParams.get('id') : 'Not a Moodle unit';
-		this.gradeUrl = document.querySelector("a[data-key='grades']")
+			: null,
+		id: getQueryVariable('id') ? getQueryVariable('id') : 'Not a Moodle unit',
+		gradeUrl: document.querySelector("a[data-key='grades']")
 			? document.querySelector("a[data-key='grades']").getAttribute('href')
-			: null;
-	}();
-	var user = new function() {
-		this.email = document.querySelector('.myprofileitem.email')
+			: null
+	};
+	const user = {
+		email: document.querySelector('.myprofileitem.email')
 			? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
-			: null;
-		this.fullName = document.querySelector('.myprofileitem.fullname')
+			: null,
+		fullName: document.querySelector('.myprofileitem.fullname')
 			? document.querySelector('.myprofileitem.fullname').innerText
-			: null;
-		this.restriction =
-			powerUsers.includes(this.email) || window.location.href.indexOf(avoidRestrictionQuery) > 0 ? false : true; // Returns true if the user is part of list or a specefic query passed
-		this.turnedEditingOn = document.querySelector('body.editing') ? true : false;
-	}();
+			: null,
+		hasEditingAccess: document.querySelector("a[href*='&edit=']") ? true : false,
+		turnedEditingOn: document.querySelector('body.editing') ? true : false,
+		hasPowerUserAccess: function () {
+			return powerUsers.includes(user.email) || document.URL.indexOf(avoidRestrictionQuery) > 0 ? true : false;
+		}(),
+	};
+	const callista = {
+		nodelist: document.querySelectorAll('section.block_callista div.card-text a[onclick]'),
+		noCallista: document.querySelector('section.block_callista p'),
+		attachmet: function() {
+			return this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
+		}
+	};
 	var offering = new function() {
 		this.shortnameBlocks = unit.shortname.split('_');
 		this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 		this.teachingPeriodBlock = this.shortnameBlocks[1];
 		this.teachingPeriods = this.teachingPeriodBlock.split('-');
-		this.campus = this.shortnameBlocks.length > 3 ? this.shortnameBlocks[2].split('-') : 'Not Applicable';
+		this.campus = this.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'Not Applicable';
 		this.year = this.shortnameBlocks[this.shortnameBlocks.length - 1].split('-');
 		this.teachingFaculty = this.unitCodes[0].indexOf('MAT') > 0 ? 'Science' : 'FIT';
 		this.location = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? 'Monash Online' : 'Campus';
 	}();
 
-	var callista = new function() {
-		this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
-		this.noCallista = document.querySelector('section.block_callista p');
-		this.Attachmet =
-			this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
-	}();
-
-	// Specify the condition where a button is required or not
-	var buttonRequirement = (function() {
-		return {
-			unitGuide: offering.unitCodes[0].match(/\w{3}\d{4}/g) && callista.nodelist.length > 1 ? true : false,
-			studentPortal: offering.teachingFaculty === 'FIT' ? true : false,
-			myGrades: document.querySelector("a[data-key='grades']") ? true : false
-		};
-	})();
-
-	var moodleViewUrl = function(id) {
-		return MoodleBaseUrl + id;
-	};
-
-	// returns Unit Guide Button info given Unit Code, Teaching Period, and Year
-	var unitGuideViewButton = function(unitCode, tpCode, tpYear) {
-		if (unitCode && tpCode && tpYear) {
-			return {
-				elementHRef:
-					unitguideBaseUrl + 'view?unitCode=' + unitCode + '&tpCode=' + tpDictonary[tpCode] + '&tpYear=' + tpYear,
-				elementText: unitCode + ' Unit Guide'
-			};
-		} else {
-			return {
-				elementHRef: unitguideBaseUrl + 'refine?' + unitguideSearchQuery,
-				elementText: 'Search Unit Guides'
-			};
-		}
-	};
-
-	// Add a button
-	function addButtonToElement({
-		parentElementId = 'ExternalLink',
-		elementClass = 'btn btn-link btn-sm btn-block quick-link-button',
-		elementHRef,
-		elementText
-	}) {
-		document.getElementById(parentElementId).innerHTML +=
-			'<a class="' +
-			elementClass +
-			'" href="' +
-			elementHRef +
-			'" role="button" target="_blank">' +
-			elementText +
-			'</a>';
-	}
-
+	// ************************************************ Public Methods ***************************************************** //
 	// methods are avaiable for use
 	return {
 		logInfo: function() {
-			console.log('Unit =', unit);
-			console.log('User =', user);
-			console.log('Offering =', offering);
-			console.log('Callista =', callista);
-			console.log('Requirements:', buttonRequirement);
-		},
-		healthCheck: function() {
-			if (!user.email) {
-				console.error('@MS: Logged in User Block is not added, hence email can not be retrieved!');
-			}
+			consoleHealthCheck(unit, '@MS: Unit =');
+			consoleHealthCheck(user, '@MS: User =');
+			consoleHealthCheck(offering, '@MS: Offering =');
+			consoleHealthCheck(callista, '@MS: Callista =');
 		},
 		setMoodlePowerUsers: function(emialArray) {
-			if (Array.isArray(emialArray)) {
-				return emialArray;
-			} else {
-				return powerUsers;
-			}
+			if (Array.isArray(emialArray)) powerUsers = emialArray;
 		},
 		addStudentPortal: function() {
 			// add IT Student Portal
-			if (buttonRequirement.studentPortal) {
-				addButtonToElement({
-					elementHRef: offering.location === 'Campus' ? moodleViewUrl('38028') : moodleViewUrl('24532'),
-					elementText: 'IT Student Portal'
-				});
+			if (offering.teachingFaculty === 'FIT') {
+				addButtonToElement(
+					offering.location === 'Campus' ? moodlePortalButton('38028') : moodlePortalButton('24532')
+				);
 			}
 		},
 		addMyGrades: function() {
 			// add My Grades
-			if (buttonRequirement.myGrades) {
+			if (unit.gradeUrl) {
 				addButtonToElement({
-					elementHRef: unit.gradeUrl,
+					elementHref: unit.gradeUrl,
 					elementText: 'My Grades'
 				});
 			}
 		},
 		addUnitGuide: function() {
-			// Generating Unit Guide link
-			if (offering.teachingPeriods.length > 1) {
-				if (offerng.unitCodes.length === 1) {
-					// Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
-					addButtonToElement(
-						unitGuideViewButton(offering.unitCodes[0], offering.teachingPeriodBlock, offering.year)
-					);
-				} else {
-					// If there is a complex situation (i.e., Multiple Unit Codes or Teaching Periods)
-					// RULE: take first unit with first teaching period and last unit with last teaching period
-					addButtonToElement(
-						unitGuideViewButton(offering.unitCodes[0], offering.teachingPeriods[0], offering.year)
-					);
+			if (offering.unitCodes[0].match(/\w{3}\d{4}/g) && callista.nodelist.length > 1) {
+				// Generating Unit Guide link
+				if (offering.teachingPeriods.length > 1) {
+					if (offerng.unitCodes.length === 1) {
+						// Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+						addButtonToElement(
+							unitGuideButton(offering.unitCodes[0], offering.teachingPeriodBlock, offering.year)
+						);
+					} else {
+						// If there is a complex situation (i.e., Multiple Unit Codes or Teaching Periods)
+						// RULE: take first unit with first teaching period and last unit with last teaching period
+						addButtonToElement(
+							unitGuideButton(offering.unitCodes[0], offering.teachingPeriods[0], offering.year)
+						);
 
-					// Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
-					if (offering.teachingPeriods[1] === 'S1') offering.year = parseInt(offering.year) + 1;
-					var { hred, text } = buildUnitGuideViewButton();
-					addButtonToElement(
-						unitGuideViewButton(
-							offering.unitCodes[offering.unitCodes.length - 1],
-							offering.teachingPeriods[1],
-							offering.year
-						)
-					);
-				}
-			} else {
-				// Handling normal cases including S2-S1-02 teaching period
-				for (var i = 0; i < offering.unitCodes.length; i++) {
-					addButtonToElement(
-						unitGuideViewButton(offering.unitCodes[i], offering.teachingPeriods[0], offering.year)
-					);
+						// Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
+						if (offering.teachingPeriods[1] === 'S1') offering.year = parseInt(offering.year) + 1;
+						addButtonToElement(
+							unitGuideButton(
+								offering.unitCodes[offering.unitCodes.length - 1],
+								offering.teachingPeriods[1],
+								offering.year
+							)
+						);
+					}
+				} else {
+					// Handling normal cases including S2-S1-02 teaching period
+					for (var i = 0; i < offering.unitCodes.length; i++) {
+						addButtonToElement(
+							unitGuideButton(offering.unitCodes[i], offering.teachingPeriods[0], offering.year)
+						);
+					}
 				}
 			}
 		}
