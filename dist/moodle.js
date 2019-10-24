@@ -6,29 +6,12 @@
 var FITMOODLE = (function() {
 	// test
 	// @param {string} id
-	var MoodleBaseUrl = 'https://lms.monash.edu',
-		unitguideBaseUrl = 'https://unitguidemanager.monash.edu/',
-		unitguideSearchQuery = 'faculty=FACULTY+OF+INFORMATION+TECHNOLOGY',
-		tpDictonary = {
-			S1: 'S1-01',
-			S2: 'S2-01',
-			FY: 'FY-01',
-			'S2-S1': 'S2-S1-02',
-			'S2-SS': 'S2-SS-02',
-			SSA: 'SSA-02',
-			SSB: 'SSB-01',
-			'OCT-MY': 'OCT-MY-01',
-			T3: 'T3-57',
-			WS: 'WS-01',
-			'MO-TP1': 'MO-TP1-01',
-			'MO-TP2': 'MO-TP2-01',
-			'MO-TP3': 'MO-TP3-01',
-			'MO-TP4': 'MO-TP4-01',
-			'MO-TP5': 'MO-TP5-01',
-			'MO-TP6': 'MO-TP6-01'
-		},
+	var MoodleBaseUrl,
+		unitguideBaseUrl,
+		unitguideSearchQuery,
+		tpDictonary,
 		powerUsers = [],
-		bypassRestrictionQuery;
+		queryToBypassRestriction;
 
 	/**
 	* Returns value given the query string (in url)
@@ -102,12 +85,10 @@ var FITMOODLE = (function() {
  * @returns {object}
  * @protected
  */
-	function addButtonToElement({
-		parentElementId = 'ExternalLink',
-		elementClass = 'btn btn-link btn-sm btn-block quick-link-button',
-		elementHref,
-		elementText
-	}) {
+	function addButtonToQuickLink({ elementHref, elementText }) {
+		const parentElementId = 'QuickLink',
+			elementClass = 'btn btn-link btn-sm btn-block quick-link-button';
+
 		document.getElementById(parentElementId).innerHTML +=
 			'<a class="' +
 			elementClass +
@@ -123,95 +104,102 @@ var FITMOODLE = (function() {
      * @param {string} color2 - The second color, in hexadecimal format.
      * @return {string} The blended color.
      */
-	function consoleHealthCheck(object, text) {
+	function consolePassOrFail(text, object) {
 		!Object.values(object).every((o) => o === null)
-			? console.log('%c PASSED ', 'color: white; background-color: #95B46A', text, object)
-			: console.log('%c ERROR ', 'color: white; background-color: #D33F49', text, object);
+			? console.log('%c PASS ', 'color: white; background-color: #95B46A', text, object)
+			: console.log('%c FAIL ', 'color: white; background-color: #D33F49', text, object);
 	}
 
 	// Scraped & Dependent variables
-	const unit = {
-		shortname: document.querySelector('span.media-body')
+	const unit = new function() {
+		this.shortname = document.querySelector('span.media-body')
 			? document.querySelector('span.media-body').innerText
-			: null,
-		id: getQueryVariable('id') ? getQueryVariable('id') : 'Not a Moodle unit',
-		gradeUrl: document.querySelector("a[data-key='grades']")
+			: null;
+		this.id = getQueryVariable('id') ? getQueryVariable('id') : 'Not a Moodle unit';
+		this.gradeUrl = document.querySelector("a[data-key='grades']")
 			? document.querySelector("a[data-key='grades']").getAttribute('href')
-			: null
-	};
-	consoleHealthCheck(unit, '@MS: Unit =');
+			: null;
+	}();
+	consolePassOrFail('@MS: Unit =', unit);
 
-	const user = {
-		email: document.querySelector('.myprofileitem.email')
+	const User = new function() {
+		this.email = document.querySelector('.myprofileitem.email')
 			? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
-			: null,
-		fullName: document.querySelector('.myprofileitem.fullname')
+			: null;
+		thisfullName = document.querySelector('.myprofileitem.fullname')
 			? document.querySelector('.myprofileitem.fullname').innerText
-			: null,
-		hasEditingAccess: document.querySelector("a[href*='&edit=']") ? true : false,
-		turnedEditingOn: document.querySelector('body.editing') ? true : false,
-		hasPowerUserAccess: (function() {
-			return powerUsers.includes(this.email) || document.URL.indexOf(avoidRestrictionQuery) > 0 ? true : false;
-		})()
-	};
-	consoleHealthCheck(user, '@MS: User =');
+			: null;
+		this.hasEditingAccess = document.querySelector("a[href*='&edit=']") ? true : false;
+		this.turnedEditingOn = document.querySelector('body.editing') ? true : false;
+		this.hasPowerUserAccess =
+			powerUsers.includes(this.email) || document.URL.indexOf(queryToBypassRestriction) > 0 ? true : false;
+	}();
 
-	const callista = {
-		nodelist: document.querySelectorAll('section.block_callista div.card-text a[onclick]'),
-		noCallista: document.querySelector('section.block_callista p'),
-		attachmet: function() {
-			return this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
-		}
-	};
-	consoleHealthCheck(callista, '@MS: Callista =');
+	consolePassOrFail('@MS: User =', User);
 
-	var offering = new function() {
+	const Callista = new function() {
+		this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
+		this.noCallista = document.querySelector('section.block_callista p');
+		this.attachmet = this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
+	}();
+	consolePassOrFail('@MS: Callista =', Callista);
+
+	var Offering = new function() {
 		this.shortnameBlocks = unit.shortname.split('_');
 		this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 		this.teachingPeriodBlock = this.shortnameBlocks[1];
 		this.teachingPeriods = this.teachingPeriodBlock.split('-');
-		this.campus = this.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'Not Applicable';
+		this.campus = this.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'One for all campuses';
 		this.year = this.shortnameBlocks[this.shortnameBlocks.length - 1].split('-');
-		this.teachingFaculty = this.unitCodes[0].indexOf('MAT') > 0 ? 'Science' : 'FIT';
-		this.location = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? 'Monash Online' : 'Campus';
+		this.taughtByFIT = this.unitCodes[0].indexOf('FIT') > 0 ? true : false;
+		this.monashOnline = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
 	}();
-	consoleHealthCheck(offering, '@MS: Offering =');
-
+	consolePassOrFail('@MS: Offering =', Offering);
 	/**
  * The methods are available to all.
  * @public
  * @class
  */
 	return {
-		/**
-     * Blend two colors together.
-     * @param {string} color1 - The first color, in hexadecimal format.
-     * @param {string} color23 - The second color, in hexadecimal format.
-     * @return {string} The blended color.
-     */
-		setMoodlePowerUsers: function(emialArray) {
-			if (Array.isArray(emialArray)) powerUsers = emialArray;
-			consoleHealthCheck(powerUsers, '@MS: Power Users =');
+		setMoodleBaseUrl: function(url) {
+			if (typeof url === 'string' || url instanceof String) this.MoodleBaseUrl = url;
+			consolePassOrFail('@MS: Moodle Base Url =', this.MoodleBaseUrl);
 			return this;
 		},
-		setBypassRestriction: function(queryString) {
+		setUnitGuideBaseUrl: function(url) {
+			if (typeof url === 'string' || url instanceof String) this.unitGuideBaseUrl = url;
+			consolePassOrFail('@MS: Unit Guide Base Url =', this.unitGuideBaseUrl);
+			return this;
+		},
+		setUnitGuideSearchUrl: function(url) {
+			if (typeof url === 'string' || url instanceof String) this.unitguideSearchQuery = url;
+			consolePassOrFail('@MS: Unit Guide Search Query =', this.unitguideSearchQuery);
+			return this;
+		},
+		setMoodlePowerUsers: function(emialArray) {
+			if (Array.isArray(emialArray)) powerUsers = emialArray;
+			consolePassOrFail('@MS: Power Users =', powerUsers);
+			return this;
+		},
+		setqueryToBypassRestriction: function(queryString) {
 			if (typeof queryString === 'string' || queryString instanceof String)
-				this.bypassRestrictionQuery = queryString;
+				this.queryToBypassRestriction = queryString;
 			return this;
 		},
 		addStudentPortal: function() {
 			// add IT Student Portal
-			if (offering.teachingFaculty === 'FIT') {
-				addButtonToElement(
-					offering.location === 'Campus' ? moodlePortalButton('38028') : moodlePortalButton('24532')
+			if (Offering.taughtByFIT === 'FIT') {
+				addButtonToQuickLink(
+					Offering.location === 'Campus' ? moodlePortalButton('38028') : moodlePortalButton('24532')
 				);
 			}
+			consolePassOrFail('@MS: Student Portal =');
 			return this;
 		},
 		addMyGrades: function() {
 			// add My Grades
 			if (unit.gradeUrl) {
-				addButtonToElement({
+				addButtonToQuickLink({
 					elementHref: unit.gradeUrl,
 					elementText: 'My Grades'
 				});
@@ -219,36 +207,36 @@ var FITMOODLE = (function() {
 			return this;
 		},
 		addUnitGuide: function() {
-			if (offering.unitCodes[0].match(/\w{3}\d{4}/g) && callista.nodelist.length > 1) {
+			if (Offering.unitCodes[0].match(/\w{3}\d{4}/g) && Callista.nodelist.length > 1) {
 				// Generating Unit Guide link
-				if (offering.teachingPeriods.length > 1) {
+				if (Offering.teachingPeriods.length > 1) {
 					if (offerng.unitCodes.length === 1) {
 						// Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
-						addButtonToElement(
-							unitGuideButton(offering.unitCodes[0], offering.teachingPeriodBlock, offering.year)
+						addButtonToQuickLink(
+							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
 						);
 					} else {
 						// If there is a complex situation (i.e., Multiple Unit Codes or Teaching Periods)
 						// RULE: take first unit with first teaching period and last unit with last teaching period
-						addButtonToElement(
-							unitGuideButton(offering.unitCodes[0], offering.teachingPeriods[0], offering.year)
+						addButtonToQuickLink(
+							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
 						);
 
 						// Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
-						if (offering.teachingPeriods[1] === 'S1') offering.year = parseInt(offering.year) + 1;
-						addButtonToElement(
+						if (Offering.teachingPeriods[1] === 'S1') Offering.year = parseInt(Offering.year) + 1;
+						addButtonToQuickLink(
 							unitGuideButton(
-								offering.unitCodes[offering.unitCodes.length - 1],
-								offering.teachingPeriods[1],
-								offering.year
+								Offering.unitCodes[Offering.unitCodes.length - 1],
+								Offering.teachingPeriods[1],
+								Offering.year
 							)
 						);
 					}
 				} else {
 					// Handling normal cases including S2-S1-02 teaching period
-					for (var i = 0; i < offering.unitCodes.length; i++) {
-						addButtonToElement(
-							unitGuideButton(offering.unitCodes[i], offering.teachingPeriods[0], offering.year)
+					for (var i = 0; i < Offering.unitCodes.length; i++) {
+						addButtonToQuickLink(
+							unitGuideButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
 						);
 					}
 				}
@@ -366,7 +354,11 @@ var FITMOODLE = (function() {
 			);
 			return this;
 		},
-		hideBlockAll: function() {
+		/**
+     * Hide left-column blocks in pages (e.g., assignmnet and gradebook) to free up space for the iframe .
+     * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
+     */
+		hideRightBlocks: function() {
 			if (
 				(window.location.href.indexOf('action=grading') > 0 &&
 					window.location.href.indexOf('mod/assign/view.php') > 0) ||
