@@ -19,7 +19,11 @@
     "url": "https://github.com/fitOnlineLearningSystems/moodle/issues"
   },
   "homepage": "https://github.com/fitOnlineLearningSystems/moodle#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "jsdoc": "^3.6.3"
+  },
+  "directories": {
+    "doc": "docs"
   }
 }

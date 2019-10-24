@@ -4,14 +4,21 @@
  * @class
  */
 var FITMOODLE = (function() {
-	// test
-	// @param {string} id
+	/**
+ * @type {string}
+ */
 	var MoodleBaseUrl,
 		unitguideBaseUrl,
 		unitguideSearchQuery,
-		tpDictonary,
-		powerUsers = [],
 		queryToBypassRestriction;
+	/**
+ * @type {object}
+ */
+	var tpDictonary = {};
+	/**
+ * @type {array}
+ */
+	var powerUsers = [];
 
 	/**
 	* Returns value given the query string (in url)
@@ -38,8 +45,8 @@ var FITMOODLE = (function() {
  * @returns {object}
  * @protected
  */
-	var moodlePortalButton = function(id) {
-		if (id) {
+	var studentPortalButton = function(id) {
+		if (Unit.id) {
 			return {
 				elementHref: MoodleBaseUrl + '/course/view.php?id=' + id,
 				elementText: 'IT Student Portal'
@@ -86,7 +93,7 @@ var FITMOODLE = (function() {
  * @protected
  */
 	function addButtonToQuickLink({ elementHref, elementText }) {
-		const parentElementId = 'QuickLink',
+		const parentElementId = 'ExternalLink',
 			elementClass = 'btn btn-link btn-sm btn-block quick-link-button';
 
 		document.getElementById(parentElementId).innerHTML +=
@@ -111,7 +118,7 @@ var FITMOODLE = (function() {
 	}
 
 	// Scraped & Dependent variables
-	const unit = new function() {
+	const Unit = new function() {
 		this.shortname = document.querySelector('span.media-body')
 			? document.querySelector('span.media-body').innerText
 			: null;
@@ -120,7 +127,7 @@ var FITMOODLE = (function() {
 			? document.querySelector("a[data-key='grades']").getAttribute('href')
 			: null;
 	}();
-	consolePassOrFail('@MS: Unit =', unit);
+	consolePassOrFail('@MS: Unit =', Unit);
 
 	const User = new function() {
 		this.email = document.querySelector('.myprofileitem.email')
@@ -140,18 +147,19 @@ var FITMOODLE = (function() {
 	const Callista = new function() {
 		this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
 		this.noCallista = document.querySelector('section.block_callista p');
-		this.attachmet = this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
+		this.attachmet =
+			this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
 	}();
 	consolePassOrFail('@MS: Callista =', Callista);
 
 	var Offering = new function() {
-		this.shortnameBlocks = unit.shortname.split('_');
+		this.shortnameBlocks = Unit.shortname.split('_');
 		this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 		this.teachingPeriodBlock = this.shortnameBlocks[1];
 		this.teachingPeriods = this.teachingPeriodBlock.split('-');
 		this.campus = this.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'One for all campuses';
 		this.year = this.shortnameBlocks[this.shortnameBlocks.length - 1].split('-');
-		this.taughtByFIT = this.unitCodes[0].indexOf('FIT') > 0 ? true : false;
+		this.taughtByFIT = this.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
 		this.monashOnline = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
 	}();
 	consolePassOrFail('@MS: Offering =', Offering);
@@ -162,23 +170,23 @@ var FITMOODLE = (function() {
  */
 	return {
 		setMoodleBaseUrl: function(url) {
-			if (typeof url === 'string' || url instanceof String) this.MoodleBaseUrl = url;
-			consolePassOrFail('@MS: Moodle Base Url =', this.MoodleBaseUrl);
+			if (typeof url === 'string' || url instanceof String) MoodleBaseUrl = url;
+			consolePassOrFail('@MS: Moodle Base Url =', MoodleBaseUrl);
 			return this;
 		},
 		setUnitGuideBaseUrl: function(url) {
-			if (typeof url === 'string' || url instanceof String) this.unitGuideBaseUrl = url;
-			consolePassOrFail('@MS: Unit Guide Base Url =', this.unitGuideBaseUrl);
+			if (typeof url === 'string' || url instanceof String) unitGuideBaseUrl = url;
+			consolePassOrFail('@MS: Unit Guide Base Url =', unitGuideBaseUrl);
 			return this;
 		},
 		setUnitGuideSearchUrl: function(url) {
-			if (typeof url === 'string' || url instanceof String) this.unitguideSearchQuery = url;
-			consolePassOrFail('@MS: Unit Guide Search Query =', this.unitguideSearchQuery);
+			if (typeof url === 'string' || url instanceof String) unitguideSearchQuery = url;
+			consolePassOrFail('@MS: Unit Guide Search Query =', unitguideSearchQuery);
 			return this;
 		},
 		setTeachingPeriodsDictionary: function(obj) {
-			if (typeof obj === 'object' || obj instanceof Object) this.tpDictonary = obj;
-			consolePassOrFail('@MS: Teaching Period Dictionary =', this.tpDictonary);
+			if (typeof obj === 'object' || obj instanceof Object) tpDictonary = obj;
+			consolePassOrFail('@MS: Teaching Period Dictionary =', tpDictonary);
 			return this;
 		},
 		setMoodlePowerUsers: function(emialArray) {
@@ -189,24 +197,23 @@ var FITMOODLE = (function() {
 		setqueryToBypassRestriction: function(queryString) {
 			if (typeof queryString === 'string' || queryString instanceof String)
 				this.queryToBypassRestriction = queryString;
-			consolePassOrFail('@MS: Bypass Query set', queryString);
+			consolePassOrFail('@MS: Bypass Query set as "', queryString, '"');
 			return this;
 		},
 		addStudentPortal: function() {
 			// add IT Student Portal
-			if (Offering.taughtByFIT === 'FIT') {
-				addButtonToQuickLink(
-					Offering.location === 'Campus' ? moodlePortalButton('38028') : moodlePortalButton('24532')
-				);
+			if (Offering.taughtByFIT) {
+				var btn = Offering.monashOnline ? studentPortalButton('24532') : studentPortalButton('38028');
+				addButtonToQuickLink(btn);
 			}
-			consolePassOrFail('@MS: Student Portal =');
+			consolePassOrFail('@MS: Student Portal =', btn);
 			return this;
 		},
 		addMyGrades: function() {
 			// add My Grades
-			if (unit.gradeUrl) {
+			if (Unit.gradeUrl) {
 				addButtonToQuickLink({
-					elementHref: unit.gradeUrl,
+					elementHref: Unit.gradeUrl,
 					elementText: 'My Grades'
 				});
 			}
@@ -285,9 +292,9 @@ var FITMOODLE = (function() {
 							company: 'fit-monash',
 							height: '500px',
 							position: 'bottom',
-							email: user.email,
-							name: user.fullName,
-							subject: "Moodle issue in '" + unit.shortname + ' (URL: ' + window.location + ')',
+							email: User.email,
+							name: User.fullName,
+							subject: "Moodle issue in '" + Unit.shortname + ' (URL: ' + window.location + ')',
 							locale: 'en',
 							captcha: 'false',
 							forwarding_address_id: '26544'
