@@ -176,6 +176,11 @@ var FITMOODLE = (function() {
 			consolePassOrFail('@MS: Unit Guide Search Query =', this.unitguideSearchQuery);
 			return this;
 		},
+		setTeachingPeriodsDictionary: function(obj) {
+			if (typeof obj === 'object' || obj instanceof Object) this.tpDictonary = obj;
+			consolePassOrFail('@MS: Teaching Period Dictionary =', this.tpDictonary);
+			return this;
+		},
 		setMoodlePowerUsers: function(emialArray) {
 			if (Array.isArray(emialArray)) powerUsers = emialArray;
 			consolePassOrFail('@MS: Power Users =', powerUsers);
@@ -184,6 +189,7 @@ var FITMOODLE = (function() {
 		setqueryToBypassRestriction: function(queryString) {
 			if (typeof queryString === 'string' || queryString instanceof String)
 				this.queryToBypassRestriction = queryString;
+			consolePassOrFail('@MS: Bypass Query set', queryString);
 			return this;
 		},
 		addStudentPortal: function() {
