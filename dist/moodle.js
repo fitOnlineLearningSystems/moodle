@@ -1,33 +1,21 @@
 /**
- * This library conatins all properties and methods to enhance Moodle capabailities at Monash Instance
- * @author Milad Sayad <milad.sayad@monash.edu>
- * @class
- */
+ * This library conatins all properties 1 and methods to enhance Moodle capabailities at Monash Instance
+ * @module module:FITMOODLE
+*/
+
 var FITMOODLE = (function() {
-	/**
- * @type {string}
- */
-	var MoodleBaseUrl,
-		unitguideBaseUrl,
-		unitguideSearchQuery,
-		queryToBypassRestriction;
-	/**
- * @type {object}
- */
+	var MoodleBaseUrl, unitguideBaseUrl, unitguideSearchQuery, queryToBypassRestriction;
+
 	var tpDictonary = {};
-	/**
- * @type {array}
- */
+
 	var powerUsers = [];
 
 	/**
 	* Returns value given the query string (in url)
-  * @constructs user
-	* @param {string} id
-	* @returns {object}
- * @memberof module:FITMOODLE
+  * @function setMoodleBaseUrl
+	* @return {object}
 	*/
-	var getQueryVariable = function(variable) {
+	function getQueryVariable(variable) {
 		var query = window.location.search.substring(1);
 		var vars = query.split('&');
 		for (var i = 0; i < vars.length; i++) {
@@ -37,18 +25,17 @@ var FITMOODLE = (function() {
 			}
 		}
 		return false;
-	};
+	}
 
 	/**
  * Returns url and text for Moodle Student Portal, given Moodle unit id
- * @param {string} id
+ * @param {string} idQueryString
  * @returns {object}
- * @protected
  */
-	var studentPortalButton = function(id) {
+	function studentPortalButton(idQueryString) {
 		if (Unit.id) {
 			return {
-				elementHref: MoodleBaseUrl + '/course/view.php?id=' + id,
+				elementHref: MoodleBaseUrl + '/course/view.php?id=' + idQueryString,
 				elementText: 'IT Student Portal'
 			};
 		} else {
@@ -57,7 +44,7 @@ var FITMOODLE = (function() {
 				elementText: 'Moodle Dashboard'
 			};
 		}
-	};
+	}
 
 	/**
  * Returns url and text for Moodle Student Portal, given Unit Code, Teaching Period, and Year
@@ -87,11 +74,10 @@ var FITMOODLE = (function() {
 	};
 
 	/**
- * Add a button
- * @param {string} id
- * @returns {object}
- * @protected
- */
+  * @param userInfo Information about the user.
+  * @param userInfo.name The name of the user.
+  * @param userInfo.email The email of the user.
+  */
 	function addButtonToQuickLink({ elementHref, elementText }) {
 		const parentElementId = 'ExternalLink',
 			elementClass = 'btn btn-link btn-sm btn-block quick-link-button';
@@ -106,11 +92,12 @@ var FITMOODLE = (function() {
 			'</a>';
 	}
 	/**
-     * Blend two colors together.
-     * @param {string} color1 - The first color, in hexadecimal format.
-     * @param {string} color2 - The second color, in hexadecimal format.
-     * @return {string} The blended color.
-     */
+  * @param userInfo Information about the user.
+  * @param userInfo.name The name of the user.
+  * @param userInfo.email The email of the user.
+	* @memberof module:FITMOODLE
+ * @private
+  */
 	function consolePassOrFail(text, object) {
 		!Object.values(object).every((o) => o === null)
 			? console.log('%c PASS ', 'color: white; background-color: #95B46A', text, object)
@@ -118,6 +105,11 @@ var FITMOODLE = (function() {
 	}
 
 	// Scraped & Dependent variables
+
+	/**
+	 * @class Unit
+	 * @memberof module:FITMOODLE
+	 */
 	const Unit = new function() {
 		this.shortname = document.querySelector('span.media-body')
 			? document.querySelector('span.media-body').innerText
@@ -129,6 +121,10 @@ var FITMOODLE = (function() {
 	}();
 	consolePassOrFail('@MS: Unit =', Unit);
 
+	/**
+	 * @class User
+	 * @private
+	 */
 	const User = new function() {
 		this.email = document.querySelector('.myprofileitem.email')
 			? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
@@ -141,9 +137,12 @@ var FITMOODLE = (function() {
 		this.hasPowerUserAccess =
 			powerUsers.includes(this.email) || document.URL.indexOf(queryToBypassRestriction) > 0 ? true : false;
 	}();
-
 	consolePassOrFail('@MS: User =', User);
 
+	/**
+	 * @constructor Callista
+	 * @private
+	 */
 	const Callista = new function() {
 		this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
 		this.noCallista = document.querySelector('section.block_callista p');
@@ -152,6 +151,9 @@ var FITMOODLE = (function() {
 	}();
 	consolePassOrFail('@MS: Callista =', Callista);
 
+	/**
+	 * @class Offering
+	 */
 	var Offering = new function() {
 		this.shortnameBlocks = Unit.shortname.split('_');
 		this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
@@ -163,43 +165,80 @@ var FITMOODLE = (function() {
 		this.monashOnline = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
 	}();
 	consolePassOrFail('@MS: Offering =', Offering);
+
 	/**
- * The methods are available to all.
- * @public
- * @class
- */
+     * Hide left-column blocks in pages (e.g., assignmnet and gradebook) to free up space for the iframe .
+		 * @memberof module:FITMOODLE
+     * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
+     */
 	return {
-		setMoodleBaseUrl: function(url) {
-			if (typeof url === 'string' || url instanceof String) MoodleBaseUrl = url;
-			consolePassOrFail('@MS: Moodle Base Url =', MoodleBaseUrl);
+		/**
+		 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+		 * @function setMoodleBaseUrl
+		 * @param {string} url 
+		 * @return {this} this, chainable
+		 */
+		setMoodleBaseUrl: function(urlString) {
+			if (typeof urlString === 'string' || urlString instanceof String) MoodleBaseUrl = urlString;
+			consolePassOrFail('@MS: Moodle Base Url set to', MoodleBaseUrl);
 			return this;
 		},
+		/**
+		 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+		 * @param {string} url 
+		 * @return {this} this, chainable
+		 */
 		setUnitGuideBaseUrl: function(url) {
 			if (typeof url === 'string' || url instanceof String) unitGuideBaseUrl = url;
 			consolePassOrFail('@MS: Unit Guide Base Url =', unitGuideBaseUrl);
 			return this;
 		},
+		/**
+		 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+		 * @param {string} url 
+		 * @return {this} this, chainable
+		 */
 		setUnitGuideSearchUrl: function(url) {
 			if (typeof url === 'string' || url instanceof String) unitguideSearchQuery = url;
 			consolePassOrFail('@MS: Unit Guide Search Query =', unitguideSearchQuery);
 			return this;
 		},
+		/**
+		 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+		 * @param {string} url 
+		 * @return {this} this, chainable
+		 */
 		setTeachingPeriodsDictionary: function(obj) {
 			if (typeof obj === 'object' || obj instanceof Object) tpDictonary = obj;
 			consolePassOrFail('@MS: Teaching Period Dictionary =', tpDictonary);
 			return this;
 		},
+		/**
+		 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+		 * @public
+		 * @param {string} url 
+		 * @return {this} this, chainable
+		 */
 		setMoodlePowerUsers: function(emialArray) {
 			if (Array.isArray(emialArray)) powerUsers = emialArray;
 			consolePassOrFail('@MS: Power Users =', powerUsers);
 			return this;
 		},
+		/**
+		 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+		 * @param {string} url 
+		 * @return {this} this, chainable
+		 */
 		setqueryToBypassRestriction: function(queryString) {
 			if (typeof queryString === 'string' || queryString instanceof String)
 				this.queryToBypassRestriction = queryString;
 			consolePassOrFail('@MS: Bypass Query set as "', queryString, '"');
 			return this;
 		},
+		/**
+		 * Add a button pointing to IT Student Portal
+		 * @return {this} this, chainable
+		 */
 		addStudentPortal: function() {
 			// add IT Student Portal
 			if (Offering.taughtByFIT) {
@@ -209,6 +248,11 @@ var FITMOODLE = (function() {
 			consolePassOrFail('@MS: Student Portal =', btn);
 			return this;
 		},
+		/**
+		 * Add a button pointing to IT Student Portal
+		 * Executes if gradebook is visible to students (i.e., Edit Settings > Appearance > Show gradebook to students)
+		 * @return {this} this, chainable
+		 */
 		addMyGrades: function() {
 			// add My Grades
 			if (Unit.gradeUrl) {
@@ -219,6 +263,10 @@ var FITMOODLE = (function() {
 			}
 			return this;
 		},
+		/**
+		 * Add a button pointing to IT Student Portal
+		 * Executes if gradebook is visible to students (i.e., Edit Settings > Appearance > Show gradebook to students)
+		 */
 		addUnitGuide: function() {
 			if (Offering.unitCodes[0].match(/\w{3}\d{4}/g) && Callista.nodelist.length > 1) {
 				// Generating Unit Guide link
@@ -256,6 +304,12 @@ var FITMOODLE = (function() {
 			}
 			return this;
 		},
+		/**	 
+		 * Add a button pointing to IT Student Portal
+		 * Executes if gradebook is visible to students (i.e., Edit Settings > Appearance > Show gradebook to students)
+		 * @function 
+		 * @memberof FITMOODLE 
+		 */
 		addTurnEditingButton: function() {
 			// Target the turn editing on/off menu item
 			var menu = $('.context-header-settings-menu a[href*="edit=o"]');
@@ -369,6 +423,7 @@ var FITMOODLE = (function() {
 		},
 		/**
      * Hide left-column blocks in pages (e.g., assignmnet and gradebook) to free up space for the iframe .
+		 * @memberof module:FITMOODLE
      * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
      */
 		hideRightBlocks: function() {

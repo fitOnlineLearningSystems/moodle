@@ -4,7 +4,7 @@
   "description": "//README.md\r # Generate docs using jsDoc\r ## A example",
   "main": "index.js",
   "scripts": {
-    "generate-docs": " ./node_modules/jsdoc/jsdoc.js  -c ./jsdoc.json"
+    "generate-docs": " ./node_modules/jsdoc/jsdoc.js README.md package.json -c ./jsdoc.json"
   },
   "repository": {
     "type": "git",
