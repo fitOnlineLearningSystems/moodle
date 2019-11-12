@@ -32,7 +32,7 @@ function consolePassOrFail(text, object) {
  * 
  * @class Unit
  */
-const Unit = function() {
+const Unit = new function() {
 	this.shortname = document.querySelector('span.media-body')
 		? document.querySelector('span.media-body').innerText
 		: null;
@@ -40,7 +40,7 @@ const Unit = function() {
 	this.gradeUrl = document.querySelector("a[data-key='grades']")
 		? document.querySelector("a[data-key='grades']").getAttribute('href')
 		: null;
-};
+}();
 
 consolePassOrFail('@MS: Unit =', Unit);
 
