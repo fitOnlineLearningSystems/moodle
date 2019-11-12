@@ -1,9 +1,11 @@
-	/**
+/**
 	* FUNCTION
 	* @module FITMOODLE
 	*/
+$(window).on('load', function() {
+	console.log('All assets are loaded');
 
-	var FITMOODLE = function() {
+	var FITMOODLE = (function() {
 		var MoodleBaseUrl, unitguideBaseUrl, unitguideSearchQuery, queryToBypassRestriction;
 
 		var tpDictonary = {};
@@ -493,5 +495,6 @@
 				return this;
 			}
 		};
-	};
-
+	})();
+	Console.log('finished');
+});
