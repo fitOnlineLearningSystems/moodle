@@ -1,94 +1,4 @@
 /**
-  * Search curent URL and returns value given the query string (in url)
-	* @function getQueryVariable
-	* @param variable {string}
-	* @returns {string} value pair (if found) or null (if not found)
-	*/
-function getQueryString(variable) {
-	var query = window.location.search.substring(1);
-	var vars = query.split('&');
-	for (var i = 0; i < vars.length; i++) {
-		var pair = vars[i].split('=');
-		if (pair[0] == variable) {
-			return pair[1];
-		}
-	}
-	return null;
-}
-
-/**
-  * Loop through object and return Error if any object is null
-	* @function consolePassOrFail
-	* @param text Information about the user.
-  * @param object The name of the user
-  */
-function consolePassOrFail(text, object) {
-	!Object.values(object).every((o) => o === null)
-		? console.log('%c PASS ', 'color: white; background-color: #95B46A', text, object)
-		: console.log('%c FAIL ', 'color: white; background-color: #D33F49', text, object);
-}
-
-/**
- * 
- * @class Unit
- */
-const Unit = new function() {
-	this.shortname = document.querySelector('span.media-body')
-		? document.querySelector('span.media-body').innerText
-		: null;
-	this.id = getQueryString('id') || 'Not a Moodle unit';
-	this.gradeUrl = document.querySelector("a[data-key='grades']")
-		? document.querySelector("a[data-key='grades']").getAttribute('href')
-		: null;
-}();
-
-consolePassOrFail('@MS: Unit =', Unit);
-
-/**
-	 * @class User
-	 */
-const User = new function() {
-	this.queryToBypassRestriction = '';
-	this.email = document.querySelector('.myprofileitem.email')
-		? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
-		: null;
-	thisfullName = document.querySelector('.myprofileitem.fullname')
-		? document.querySelector('.myprofileitem.fullname').innerText
-		: null;
-	this.hasEditingAccess = document.querySelector("a[href*='&edit=']") ? true : false;
-	this.turnedEditingOn = document.querySelector('body.editing') ? true : false;
-	this.hasPowerUserAccess =
-		powerUsers.includes(this.email) || document.URL.indexOf(this.queryToBypassRestriction) > 0 ? true : false;
-}();
-consolePassOrFail('@MS: User =', User);
-
-/**
-	 * @class Callista
-	 */
-const Callista = new function() {
-	this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
-	this.noCallista = document.querySelector('section.block_callista p');
-	this.attachmet =
-		this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
-}();
-consolePassOrFail('@MS: Callista =', Callista);
-
-/**
-	 * @class Offering
-	 */
-var Offering = new function() {
-	this.shortnameBlocks = Unit.shortname.split('_');
-	this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
-	this.teachingPeriodBlock = this.shortnameBlocks[1];
-	this.teachingPeriods = this.teachingPeriodBlock.split('-');
-	this.campus = this.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'One for all campuses';
-	this.year = this.shortnameBlocks[this.shortnameBlocks.length - 1].split('-');
-	this.taughtByFIT = this.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
-	this.monashOnline = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
-}();
-consolePassOrFail('@MS: Offering =', Offering);
-
-/**
 * FUNCTION
 * @module FITMOODLE
 */
@@ -99,6 +9,95 @@ var FITMOODLE = (function() {
 	var tpDictonary = {};
 
 	var powerUsers = [];
+	/**
+  * Search curent URL and returns value given the query string (in url)
+	* @function getQueryVariable
+	* @param variable {string}
+	* @returns {string} value pair (if found) or null (if not found)
+	*/
+	function getQueryString(variable) {
+		var query = window.location.search.substring(1);
+		var vars = query.split('&');
+		for (var i = 0; i < vars.length; i++) {
+			var pair = vars[i].split('=');
+			if (pair[0] == variable) {
+				return pair[1];
+			}
+		}
+		return null;
+	}
+
+	/**
+  * Loop through object and return Error if any object is null
+	* @function consolePassOrFail
+	* @param text Information about the user.
+  * @param object The name of the user
+  */
+	function consolePassOrFail(text, object) {
+		!Object.values(object).every((o) => o === null)
+			? console.log('%c PASS ', 'color: white; background-color: #95B46A', text, object)
+			: console.log('%c FAIL ', 'color: white; background-color: #D33F49', text, object);
+	}
+
+	/**
+ * 
+ * @class Unit
+ */
+	const Unit = new function() {
+		this.shortname = document.querySelector('span.media-body')
+			? document.querySelector('span.media-body').innerText
+			: null;
+		this.id = getQueryString('id') || 'Not a Moodle unit';
+		this.gradeUrl = document.querySelector("a[data-key='grades']")
+			? document.querySelector("a[data-key='grades']").getAttribute('href')
+			: null;
+	}();
+
+	consolePassOrFail('@MS: Unit =', Unit);
+
+	/**
+	 * @class User
+	 */
+	const User = new function() {
+		this.queryToBypassRestriction = '';
+		this.email = document.querySelector('.myprofileitem.email')
+			? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
+			: null;
+		thisfullName = document.querySelector('.myprofileitem.fullname')
+			? document.querySelector('.myprofileitem.fullname').innerText
+			: null;
+		this.hasEditingAccess = document.querySelector("a[href*='&edit=']") ? true : false;
+		this.turnedEditingOn = document.querySelector('body.editing') ? true : false;
+		this.hasPowerUserAccess =
+			powerUsers.includes(this.email) || document.URL.indexOf(this.queryToBypassRestriction) > 0 ? true : false;
+	}();
+	consolePassOrFail('@MS: User =', User);
+
+	/**
+	 * @class Callista
+	 */
+	const Callista = new function() {
+		this.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
+		this.noCallista = document.querySelector('section.block_callista p');
+		this.attachmet =
+			this.nodelist.length > 0 ? [ ...this.nodelist ].map((x) => x.innerText) : this.noCallista.innerText;
+	}();
+	consolePassOrFail('@MS: Callista =', Callista);
+
+	/**
+	 * @class Offering
+	 */
+	var Offering = new function() {
+		this.shortnameBlocks = Unit.shortname.split('_');
+		this.unitCodes = this.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+		this.teachingPeriodBlock = this.shortnameBlocks[1];
+		this.teachingPeriods = this.teachingPeriodBlock.split('-');
+		this.campus = this.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'One for all campuses';
+		this.year = this.shortnameBlocks[this.shortnameBlocks.length - 1].split('-');
+		this.taughtByFIT = this.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
+		this.monashOnline = this.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
+	}();
+	consolePassOrFail('@MS: Offering =', Offering);
 
 	/**
 	 * Returns url and text for Moodle Student Portal, given Moodle unit id
