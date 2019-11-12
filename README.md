@@ -1,8 +1,5 @@
   FIT Moodle is a javascript library developed by Faculty of Inforamtion Technology at Monash University. 
 
-### Objective
-  This library add functionalities 
-
 ### Introduction
   FIT Moodle is a javascript library developed by the Faculty of Information Technology at Monash University. 
 

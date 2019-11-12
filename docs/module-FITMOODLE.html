@@ -87,7 +87,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="moodle.js.html">moodle.js</a>, <a href="moodle.js.html#line90">line 90</a>
+        <a href="moodle.js.html">moodle.js</a>, <a href="moodle.js.html#line1">line 1</a>
     </li></ul></dd>
     
 
@@ -125,6 +125,22 @@
 
     
 
+    
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="module-FITMOODLE-Callista.html">Callista</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-FITMOODLE-Offering.html">Offering</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-FITMOODLE-Unit.html">Unit</a></dt>
+            <dd></dd>
+        
+            <dt><a href="module-FITMOODLE-User.html">User</a></dt>
+            <dd></dd>
+        </dl>
     
 
     
@@ -444,6 +460,315 @@ Adds a button pointing to IT Student Portal<span class="signature">()</span><spa
         
 <div class="param-desc">
     Console Log whether function is successfully executed (Passed) or thrown error (Error).
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~consolePassOrFail"><span class="type-signature">(inner) </span>consolePassOrFail<span class="signature">(text, object)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Loop through object and return Error if any object is null
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Information about the user.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>object</code></td>
+            
+
+            <td class="type">
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The name of the user</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="moodle.js.html">moodle.js</a>, <a href="moodle.js.html#line30">line 30</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~getQueryVariable"><span class="type-signature">(inner) </span>getQueryVariable<span class="signature">(variable)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Search curent URL and returns value given the query string (in url)
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>variable</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="moodle.js.html">moodle.js</a>, <a href="moodle.js.html#line12">line 12</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    value pair (if found) or null (if not found)
 </div>
 
 
@@ -1686,13 +2011,13 @@ Sets url base (e.g., "https://unitguidemanager.monash.edu"). WARN: do not put sl
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FITMOODLE.html">FITMOODLE</a></li></ul><h3>Classes</h3><ul><li><a href="Callista.html">Callista</a></li><li><a href="Offering.html">Offering</a></li><li><a href="Unit.html">Unit</a></li><li><a href="User.html">User</a></li></ul><h3>Global</h3><ul><li><a href="global.html#consolePassOrFail">consolePassOrFail</a></li><li><a href="global.html#getQueryVariable">getQueryVariable</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-FITMOODLE.html">FITMOODLE</a></li></ul><h3>Classes</h3><ul><li><a href="module-FITMOODLE-Callista.html">Callista</a></li><li><a href="module-FITMOODLE-Offering.html">Offering</a></li><li><a href="module-FITMOODLE-Unit.html">Unit</a></li><li><a href="module-FITMOODLE-User.html">User</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed Oct 30 2019 13:29:50 GMT+1100 (Australian Eastern Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Tue Nov 12 2019 13:45:27 GMT+1100 (Australian Eastern Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>
