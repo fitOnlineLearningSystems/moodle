@@ -496,5 +496,5 @@ $(window).on('load', function() {
 			}
 		};
 	})();
-	Console.log('finished');
+	console.log('finished');
 });
