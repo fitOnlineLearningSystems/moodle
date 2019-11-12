@@ -2,12 +2,18 @@
 <link rel='stylesheet' href='https://cdn.jsdelivr.net/gh/fitOnlineLearningSystems/moodle@3.7.1/dist/moodle.css' />
 
 <link rel='stylesheet' href='https://mahara.infotech.monash.edu/moodle/js/highlight/agate.min.css' />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src='https://mahara.infotech.monash.edu/moodle/js/highlight/highlight.min.js' type='text/javascript'></script>
+<Script src='https://cdn.jsdelivr.net/gh/fitOnlineLearningSystems/moodle@3.7.1/dist/moodle.js'
+type='text/javascript'> </Script>
 
 
 <script>
 
   // JQuery - on page load
-  $(function () {
+  $(window).on('load', function() {
+    FITMOODLE();
+
 
     FITMOODLE.setMoodleBaseUrl('https://lms.monash.edu')
   .setMoodlePowerUsers(
@@ -68,6 +74,4 @@
 
   </div>
 </div>
-<script src='https://mahara.infotech.monash.edu/moodle/js/highlight/highlight.min.js' type='text/javascript'></script>
-<Script src='https://cdn.jsdelivr.net/gh/fitOnlineLearningSystems/moodle@3.7.1/dist/moodle.js'
-type='text/javascript'> </Script>
+
