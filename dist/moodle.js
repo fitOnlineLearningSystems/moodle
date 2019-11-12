@@ -404,6 +404,33 @@ var FITMOODLE = (function() {
 			}
 			return this;
 		},
+		addCarousel: function(parentElementId, carouselId, carouselClass, carouselInterval, courselObjectArray) {
+			var courselInner = '';
+			for (var i = 0; i < courselObjectArray.length; i++) {
+				courselInner +=
+					(i == 0 ? "<div class='carousel-item active'>" : "<div class='carousel-item'>") +
+					'<a href=' +
+					courselObjectArray[i].href +
+					"target='_blank'> <img class='d-block w-100'" +
+					'src=' +
+					courselObjectArray[i].src +
+					' alt=' +
+					courselObjectArray[i].alt +
+					' /> </a> </div>';
+			}
+			document.getElementById(parentElementId).innerHTML +=
+				'<div id=' +
+				carouselId +
+				'class=' +
+				carouselClass +
+				"data-ride='carousel' data-interval=" +
+				carouselInterval +
+				"> <div class='carousel-inner'> " +
+				courselInner +
+				'</div> </div>';
+
+			return this;
+		},
 		limitUnitMainPage: function() {
 			if (window.location.href.indexOf('view.php?id=') > 0 && $('body.editing').length > 0) {
 				$("a[title='Set or change image']").css('display', 'none');
