@@ -152,7 +152,7 @@ var FITMOODLE = (function() {
   * @param userInfo.email The email of the user.
   */
 	function addButtonToQuickLink({ elementHref, elementText }) {
-		const parentElementId = 'ExternalLink',
+		const parentElementId = 'QuickLink',
 			elementClass = 'btn btn-link btn-sm btn-block quick-link-button';
 
 		document.getElementById(parentElementId).innerHTML +=
@@ -314,6 +314,8 @@ var FITMOODLE = (function() {
 						);
 					}
 				}
+			} else {
+				addButtonToQuickLink(unitGuideButton());
 			}
 			return this;
 		},
