@@ -4,9 +4,9 @@
 	*/
 
 var FITMOODLE = (function() {
-	var MoodleBaseUrl;
-	var unitguideBaseUrl;
-	var unitguideSearchQuery;
+	var MoodleBaseUrl = '';
+	var unitguideBaseUrl = '';
+	var unitguideSearchQuery = '';
 	var queryToBypassRestriction = '';
 	var tpDictonary = {};
 	var powerUsers = [];
@@ -124,11 +124,11 @@ var FITMOODLE = (function() {
 	 * @returns {object}
 	 * @protected
 	 */
-	var unitGuideButton = function(unitCode, tpCode, tpYear) {
+	function unitGuideButton(unitCode, tpCode, tpYear) {
 		if (unitCode && tpCode && tpYear) {
 			return {
 				elementHref:
-					unitguideBaseUrl +
+					unitGuideBaseUrl +
 					'/view?unitCode=' +
 					unitCode +
 					'&tpCode=' +
@@ -139,11 +139,11 @@ var FITMOODLE = (function() {
 			};
 		} else {
 			return {
-				elementHref: unitguideBaseUrl + 'refine?' + unitguideSearchQuery,
+				elementHref: unitGuideBaseUrl + '/refine?' + unitguideSearchQuery,
 				elementText: 'Search Unit Guides'
 			};
 		}
-	};
+	}
 
 	/**
 		* @param userInfo Information about the user.
@@ -164,7 +164,6 @@ var FITMOODLE = (function() {
 			'</a>';
 	}
 
-	/** @lends FITMOODLE */
 	return {
 		init: function() {
 			getUnit();
@@ -196,8 +195,8 @@ var FITMOODLE = (function() {
 			 * @param {string} url 
 			 * @return {this} this, chainable
 			 */
-		setUnitGuideBaseUrl: function(url) {
-			if (typeof url === 'string' || url instanceof String) unitGuideBaseUrl = url;
+		setUnitGuideBaseUrl: function(urlString) {
+			if (typeof urlString === 'string' || urlString instanceof String) unitGuideBaseUrl = urlString;
 			consolePassOrFail('@MS: Unit Guide Base Url set ', unitGuideBaseUrl);
 			return this;
 		},
@@ -208,8 +207,8 @@ var FITMOODLE = (function() {
 			 * @param {string} url 
 			 * @return {this} this, chainable
 			 */
-		setUnitGuideSearchUrl: function(url) {
-			if (typeof url === 'string' || url instanceof String) unitguideSearchQuery = url;
+		setUnitGuideSearchUrl: function(urlExtension) {
+			if (typeof urlExtension === 'string' || urlExtension instanceof String) unitguideSearchQuery = urlExtension;
 			consolePassOrFail('@MS: Unit Guide Search Query set ', unitguideSearchQuery);
 			return this;
 		},
@@ -240,7 +239,7 @@ var FITMOODLE = (function() {
 			if (typeof queryString === 'string' || queryString instanceof String) {
 				queryToBypassRestriction = queryString;
 			}
-			consolePassOrFail('@MS: Bypass Query set ', queryString);
+			consolePassOrFail('@MS: Bypass Query set ', queryToBypassRestriction);
 			User.hasPowerUserAccess =
 				powerUsers.includes(User.email) || document.URL.indexOf(queryToBypassRestriction) > 0 ? true : false;
 			return this;
@@ -286,7 +285,7 @@ var FITMOODLE = (function() {
 			 * @memberof class:FITMOODLE
 			 */
 		addUnitGuide: function() {
-			if (Offering.unitCodes[0].match(/\w{3}\d{4}/g) && Callista.nodelist.length > 1) {
+			if (/\w{3}\d{4}/g.test(Offering.unitCodes[0]) && Callista.nodelist.length > 0) {
 				// Generating Unit Guide link
 				if (Offering.teachingPeriods.length > 1) {
 					if (offerng.unitCodes.length === 1) {
