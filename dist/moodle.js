@@ -4,18 +4,16 @@
 	*/
 
 var FITMOODLE = (function() {
-	var MoodleBaseUrl, unitguideBaseUrl, unitguideSearchQuery, queryToBypassRestriction;
-
+	var MoodleBaseUrl;
+	var unitguideBaseUrl;
+	var unitguideSearchQuery;
+	var queryToBypassRestriction = '';
 	var tpDictonary = {};
-
 	var powerUsers = [];
-
-	var instance;
-
-	var Offering = new Object(),
-		User = new Object(),
-		Unit = new Object(),
-		Callista = new Object();
+	var Offering = new Object();
+	var User = new Object();
+	var Unit = new Object();
+	var Callista = new Object();
 	/**
 		* Search curent URL and returns value given the query string (in url)
 		* @function getQueryVariable
@@ -64,7 +62,6 @@ var FITMOODLE = (function() {
 		 * @class User
 		 */
 	function getUser() {
-		User.queryToBypassRestriction = '';
 		User.email = document.querySelector('.myprofileitem.email')
 			? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
 			: null;
@@ -73,8 +70,6 @@ var FITMOODLE = (function() {
 			: null;
 		User.hasEditingAccess = document.querySelector("a[href*='&edit=']") ? true : false;
 		User.turnedEditingOn = document.querySelector('body.editing') ? true : false;
-		User.hasPowerUserAccess =
-			powerUsers.includes(User.email) || document.URL.indexOf(User.queryToBypassRestriction) > 0 ? true : false;
 	}
 
 	/**
@@ -169,23 +164,17 @@ var FITMOODLE = (function() {
 			'</a>';
 	}
 
-	function init() {
-		getUnit();
-		consolePassOrFail('@MS: Unit =', Unit);
-		getUser();
-		consolePassOrFail('@MS: User =', User);
-		getOffering();
-		consolePassOrFail('@MS: Offering =', Offering);
-		getCallista();
-		consolePassOrFail('@MS: Callista =', Callista);
-	}
-
 	/** @lends FITMOODLE */
 	return {
-		getInstance: function() {
-			if (!instance) {
-				instance = init();
-			}
+		init: function() {
+			getUnit();
+			consolePassOrFail('@MS: Unit set ', Unit);
+			getUser();
+			consolePassOrFail('@MS: User set ', User);
+			getOffering();
+			consolePassOrFail('@MS: Offering set ', Offering);
+			getCallista();
+			consolePassOrFail('@MS: Callista set ', Callista);
 			return this;
 		},
 		/**
@@ -197,7 +186,7 @@ var FITMOODLE = (function() {
 			 */
 		setMoodleBaseUrl: function(urlString) {
 			if (typeof urlString === 'string' || urlString instanceof String) MoodleBaseUrl = urlString;
-			consolePassOrFail('@MS: Moodle Base Url set to', MoodleBaseUrl);
+			consolePassOrFail('@MS: Moodle Base Url set ', MoodleBaseUrl);
 			return this;
 		},
 		/**
@@ -209,7 +198,7 @@ var FITMOODLE = (function() {
 			 */
 		setUnitGuideBaseUrl: function(url) {
 			if (typeof url === 'string' || url instanceof String) unitGuideBaseUrl = url;
-			consolePassOrFail('@MS: Unit Guide Base Url =', unitGuideBaseUrl);
+			consolePassOrFail('@MS: Unit Guide Base Url set ', unitGuideBaseUrl);
 			return this;
 		},
 		/**
@@ -221,7 +210,7 @@ var FITMOODLE = (function() {
 			 */
 		setUnitGuideSearchUrl: function(url) {
 			if (typeof url === 'string' || url instanceof String) unitguideSearchQuery = url;
-			consolePassOrFail('@MS: Unit Guide Search Query =', unitguideSearchQuery);
+			consolePassOrFail('@MS: Unit Guide Search Query set ', unitguideSearchQuery);
 			return this;
 		},
 		/**
@@ -233,7 +222,7 @@ var FITMOODLE = (function() {
 			 */
 		setTeachingPeriodsDictionary: function(obj) {
 			if (typeof obj === 'object' || obj instanceof Object) tpDictonary = obj;
-			consolePassOrFail('@MS: Teaching Period Dictionary =', tpDictonary);
+			consolePassOrFail('@MS: Teaching Period Dictionary set ', tpDictonary);
 			return this;
 		},
 		/**
@@ -243,22 +232,17 @@ var FITMOODLE = (function() {
 			 * @param {string} url 
 			 * @return {this} this, chainable
 			 */
-		setMoodlePowerUsers: function(emialArray) {
-			if (Array.isArray(emialArray)) powerUsers = emialArray;
-			consolePassOrFail('@MS: Power Users =', powerUsers);
-			return this;
-		},
-		/**
-			 * @function setqueryToBypassRestriction
-			 * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
-			 * @public
-			 * @param {string} url 
-			 * @return {this} this, chainable
-			 */
-		setqueryToBypassRestriction: function(queryString) {
-			if (typeof queryString === 'string' || queryString instanceof String)
-				this.queryToBypassRestriction = queryString;
-			consolePassOrFail('@MS: Bypass Query set as "', queryString, '"');
+		setMoodlePowerUsers: function(emialArray, queryString) {
+			if (Array.isArray(emialArray)) {
+				powerUsers = emialArray;
+			}
+			consolePassOrFail('@MS: Power Users set ', powerUsers);
+			if (typeof queryString === 'string' || queryString instanceof String) {
+				queryToBypassRestriction = queryString;
+			}
+			consolePassOrFail('@MS: Bypass Query set ', queryString);
+			User.hasPowerUserAccess =
+				powerUsers.includes(User.email) || document.URL.indexOf(queryToBypassRestriction) > 0 ? true : false;
 			return this;
 		},
 		/**
