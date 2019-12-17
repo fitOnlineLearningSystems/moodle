@@ -219,6 +219,7 @@ div.dimmed_text h6 {
 #edit-on-off {
 	position: absolute;
 	right: 15px;
+	top: 223px;
 }
 
 /* On smaller screens, hide button text and display pen icon only*/
