@@ -445,7 +445,7 @@ var FITMOODLE = (function() {
 				$("a[title='Edit summary']").css('display', 'none');
 				$("a[title='Move this section out of the grid']").css('display', 'none');
 				$('a.add-sections').css('display', 'none');
-				$("i[aria-label='Hide HTML block']").parent().hide();
+				$("i[aria-label='Hide Quick Links block']").parent().hide();
 				$("i[aria-label='Hide Panopto block']").parent().hide();
 				$("i[aria-label='Hide Logged in user block']").parent().hide();
 			}
