@@ -289,7 +289,7 @@ var FITMOODLE = (function() {
 			 * @memberof class:FITMOODLE
 			 */
 		addUnitGuide: function() {
-			if (/\w{3}\d{4}/g.test(Offering.unitCodes[0]) && Callista.nodelist.length > 0) {
+			if (/\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
 				// Generating Unit Guide link
 				if (Offering.teachingPeriods.length > 1) {
 					if (offerng.unitCodes.length === 1) {
