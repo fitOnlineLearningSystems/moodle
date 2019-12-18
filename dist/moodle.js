@@ -65,6 +65,11 @@ var FITMOODLE = (function() {
 		User.email = document.querySelector('.myprofileitem.email')
 			? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
 			: null;
+		if (!User.email) {
+			User.email = document.querySelector('.myprofileitem.city')
+				? document.querySelector('.myprofileitem.city').innerText.toLowerCase()
+				: null;
+		}
 		User.fullName = document.querySelector('.myprofileitem.fullname')
 			? document.querySelector('.myprofileitem.fullname').innerText
 			: null;
@@ -359,7 +364,6 @@ var FITMOODLE = (function() {
 			}
 			return this;
 		},
-
 		addSupportBee: function() {
 			// Add 'Contact support', but only if editing is on
 			if ($('body.editing').length > 0) {
