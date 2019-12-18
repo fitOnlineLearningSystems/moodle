@@ -76,12 +76,10 @@ var FITMOODLE = (function() {
 		 * @class Callista
 		 */
 	function getCallista() {
-		Callista.nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
-		Callista.noCallista = document.querySelector('section.block_callista p');
-		Callista.attachmet =
-			Callista.nodelist.length > 0
-				? [ ...Callista.nodelist ].map((x) => x.innerText)
-				: Callista.noCallista.innerText;
+		var nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
+		var noCallista = document.querySelector('section.block_callista p');
+		Callista.attachment =
+			nodelist.length && noCallista ? [ ...nodelist ].map((x) => x.innerText) : noCallista.innerText;
 	}
 
 	/**
