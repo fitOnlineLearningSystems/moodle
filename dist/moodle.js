@@ -5,7 +5,7 @@
 
 var FITMOODLE = (function() {
 	var MoodleBaseUrl = '';
-	var unitguideBaseUrl = '';
+	var unitGuideBaseUrl = '';
 	var unitguideSearchQuery = '';
 	var queryToBypassRestriction = '';
 	var tpDictonary = {};
@@ -67,7 +67,7 @@ var FITMOODLE = (function() {
 			: null;
 		if (!User.email) {
 			User.email = document.querySelector('.myprofileitem.city')
-				? document.querySelector('.myprofileitem.city').innerText.toLowerCase()
+				? document.querySelector('.myprofileitem.city').innerText.toLowerCase().replace("email address: ", "")
 				: null;
 		}
 		User.fullName = document.querySelector('.myprofileitem.fullname')
@@ -101,7 +101,8 @@ var FITMOODLE = (function() {
 		Offering.unitCodes = Offering.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 		Offering.teachingPeriodBlock = Offering.shortnameBlocks[1];
 		Offering.teachingPeriods = Offering.teachingPeriodBlock.split('-');
-		Offering.campus = Offering.shortnameBlocks.length > 3 ? shortnameBlocks[2].split('-') : 'One for all campuses';
+		Offering.campus =
+			Offering.shortnameBlocks.length > 3 ? Offering.shortnameBlocks[2].split('-') : 'One for all campuses';
 		Offering.year = Offering.shortnameBlocks[Offering.shortnameBlocks.length - 1].split('-');
 		Offering.taughtByFIT = Offering.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
 		Offering.monashOnline = Offering.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
