@@ -297,7 +297,7 @@ var FITMOODLE = (function() {
 			 * @memberof class:FITMOODLE
 			 */
 		addUnitGuide: function() {
-			if (Offering && /\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
+			if (typeof Offering.unitCodes === 'undefined' && /\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
 				// Generating Unit Guide link
 				if (Offering.teachingPeriods.length > 1) {
 					if (Offering.unitCodes.length === 1) {
