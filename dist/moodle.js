@@ -98,7 +98,7 @@ var FITMOODLE = (function() {
 		 */
 	function getOffering() {
 		//avoid throwing error for shortnames that do not follow the pattern (has _ less than 2)
-		if (Unit.shortname.match(/_/g).length < 2) return;
+		if ((Unit.shortname.match(/_/g) || []).length < 2) return;
 		Offering.shortnameBlocks = Unit.shortname.split('_');
 		Offering.unitCodes = Offering.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 		Offering.teachingPeriodBlock = Offering.shortnameBlocks[1];
@@ -297,7 +297,7 @@ var FITMOODLE = (function() {
 			 * @memberof class:FITMOODLE
 			 */
 		addUnitGuide: function() {
-			if (/\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
+			if (Offering && /\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
 				// Generating Unit Guide link
 				if (Offering.teachingPeriods.length > 1) {
 					if (Offering.unitCodes.length === 1) {
