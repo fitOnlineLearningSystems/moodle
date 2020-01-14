@@ -97,17 +97,17 @@ var FITMOODLE = (function() {
 		 * @class Offering
 		 */
 	function getOffering() {
-		if (/_/g.test(Unit.shortname).length > 1) {
-			Offering.shortnameBlocks = Unit.shortname.split('_');
-			Offering.unitCodes = Offering.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
-			Offering.teachingPeriodBlock = Offering.shortnameBlocks[1];
-			Offering.teachingPeriods = Offering.teachingPeriodBlock.split('-');
-			Offering.campus =
-				Offering.shortnameBlocks.length > 3 ? Offering.shortnameBlocks[2].split('-') : 'One for all campuses';
-			Offering.year = Offering.shortnameBlocks[Offering.shortnameBlocks.length - 1].split('-');
-			Offering.taughtByFIT = Offering.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
-			Offering.monashOnline = Offering.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
-		}
+		//avoid throwing error for shortnames that do not follow the pattern (has _ less than 2)
+		if (Unit.shortname.match(/_/).length < 2) return;
+		Offering.shortnameBlocks = Unit.shortname.split('_');
+		Offering.unitCodes = Offering.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+		Offering.teachingPeriodBlock = Offering.shortnameBlocks[1];
+		Offering.teachingPeriods = Offering.teachingPeriodBlock.split('-');
+		Offering.campus =
+			Offering.shortnameBlocks.length > 3 ? Offering.shortnameBlocks[2].split('-') : 'One for all campuses';
+		Offering.year = Offering.shortnameBlocks[Offering.shortnameBlocks.length - 1].split('-');
+		Offering.taughtByFIT = Offering.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
+		Offering.monashOnline = Offering.teachingPeriods[0].indexOf('MO-TP') > 0 ? true : false;
 	}
 
 	/**
