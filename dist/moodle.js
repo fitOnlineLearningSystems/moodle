@@ -107,7 +107,7 @@ var FITMOODLE = (function() {
 			Offering.shortnameBlocks.length > 3 ? Offering.shortnameBlocks[2].split('-') : 'One for all campuses';
 		Offering.year = Offering.shortnameBlocks[Offering.shortnameBlocks.length - 1].split('-');
 		Offering.taughtByFIT = Offering.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
-		Offering.monashOnline = Offering.teachingPeriodBlock.indexOf('MO-TP') > 0 ? true : false;
+		Offering.monashOnline = Offering.teachingPeriodBlock.indexOf('MO-TP') >= 0 ? true : false;
 	}
 
 	/**
