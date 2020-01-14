@@ -447,6 +447,8 @@ var FITMOODLE = (function() {
 			return this;
 		},
 		limitUnitMainPage: function() {
+			// give poweruser ability to bypass this restrictions
+			if (User.hasPowerUserAccess) return this;
 			if (window.location.href.indexOf('view.php?id=') > 0 && $('body.editing').length > 0) {
 				$("a[title='Set or change image']").css('display', 'none');
 				$("a[title='Edit summary']").css('display', 'none');
