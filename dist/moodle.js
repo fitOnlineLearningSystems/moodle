@@ -297,7 +297,7 @@ var FITMOODLE = (function() {
 			if (/\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
 				// Generating Unit Guide link
 				if (Offering.teachingPeriods.length > 1) {
-					if (offerng.unitCodes.length === 1) {
+					if (Offering.unitCodes.length === 1) {
 						// Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
