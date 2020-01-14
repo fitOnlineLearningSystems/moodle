@@ -98,7 +98,7 @@ var FITMOODLE = (function() {
 		 */
 	function getOffering() {
 		//avoid throwing error for shortnames that do not follow the pattern (has _ less than 2)
-		if (Unit.shortname.match(/_/).length < 2) return;
+		if (Unit.shortname.match(/_/g).length < 2) return;
 		Offering.shortnameBlocks = Unit.shortname.split('_');
 		Offering.unitCodes = Offering.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
 		Offering.teachingPeriodBlock = Offering.shortnameBlocks[1];
