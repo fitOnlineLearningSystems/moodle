@@ -1,0 +1,911 @@
+<!-- Fontawesome -->
+<p><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous" /></p>
+<!-- Roboto font -->
+<p><link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet" /></p>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" type="text/javascript"></script>
+<style><!--
+/*
+    * @Author: Milad Sayad
+    */
+
+    /* Cross fade START*/
+
+    .carousel-fade .carousel-item {
+    opacity: 0;
+    transition-property: opacity;
+    -webkit-transform: none;
+    transform: none;
+    }
+
+    .carousel-fade .carousel-item.active,
+    .carousel-fade .carousel-item-next.carousel-item-left,
+    .carousel-fade .carousel-item-prev.carousel-item-right {
+    z-index: 1;
+    opacity: 1;
+    }
+
+    .carousel-fade .active.carousel-item-left,
+    .carousel-fade .active.carousel-item-right {
+    z-index: 0;
+    opacity: 0;
+    transition: 0s 0.6s opacity;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+    .carousel-fade .active.carousel-item-left,
+    .carousel-fade .active.carousel-item-right {
+        transition: none;
+    }
+    }
+
+    .carousel-control-prev,
+    .carousel-control-next {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    width: 15%;
+    color: #ffffff;
+    text-align: center;
+    opacity: 0.5;
+    transition: opacity 0.15s ease;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+    .carousel-control-prev,
+    .carousel-control-next {
+    transition: none;
+    }
+    }
+
+    .carousel-control-prev:hover, .carousel-control-prev:focus,
+    .carousel-control-next:hover,
+    .carousel-control-next:focus {
+    color: #000000;
+    text-decoration: none;
+    outline: 0;
+    opacity: 0.9;
+    }
+
+    .carousel-control-prev {
+    left: 0;
+    }
+
+    .carousel-control-next {
+    right: 0;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: no-repeat 50% / 100% 100%;
+    }
+
+    .carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 8 8'%3e%3cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3e%3c/svg%3e");
+    }
+
+    .carousel-control-next-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 8 8'%3e%3cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3e%3c/svg%3e");
+    }
+
+    /* Cross fade END*/
+
+    .quick-link-button {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: all 0.7s cubic-bezier(.25, .8, .25, 1);
+        color: #006cab;
+        background: #ffffff;
+    }
+
+    .quick-link-button:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), 0 3px 3px rgba(0, 0, 0, 0.22);
+        color: #006cab;
+        text-decoration: none;
+        background: #f2f2f2;
+    }
+
+    /*
+    * @Author: Rajib Uddin
+    */
+
+    .staffcard {
+        overflow: hidden;
+        position: relative;
+        border: 1px solid #FFF;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+        border-radius: 5px;
+        text-align: center;
+        padding: 10px 0;
+        background-image: linear-gradient(to bottom, #e8ebed, #edeff1, #f1f2f4, #f6f6f8, #fafafb, #fafafb, #fafafb, #fafafb, #f6f6f8, #f1f2f4, #edeff1, #e8ebed);
+        color: #000;
+        margin-bottom: 17px;
+        margin-right: -12px !important;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12),
+            0 2px 4px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .staffcard .header-bg {
+        /* This stretches the canvas across the entire hero unit */
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        border-bottom: 2px #FFF solid;
+        /* This positions the canvas under the text */
+        z-index: 1;
+    }
+
+    .staffcard .avatar {
+        position: relative;
+        margin-top: 10px;
+        z-index: 100;
+    }
+
+    .staffcard .avatar img {
+        width: 150px;
+        height: 150px;
+        -webkit-border-radius: 50%;
+        -moz-border-radius: 50%;
+        border-radius: 50%;
+        border: 3px solid #FFF;
+    }
+
+    /* Grid box shadow and rollover */
+    .format-grid .course-content ul.gridicons li .gridicon_link {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+        transition: all 0.7s cubic-bezier(.25, .8, .25, 1);
+    }
+
+    .format-grid .course-content ul.gridicons li .gridicon_link:hover {
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), 0 3px 3px rgba(0, 0, 0, 0.22);
+    }
+
+    /*
+    * @Author: Greg Bird (@BirdyOz, greg.bird.oz@gmail.com)
+    * @First Created:   2019-01-15 16:05:23
+    * @Last Modified by:   birdyoz
+    * @Last Modified time: 2019-01-24 15:00:41
+    */
+    /*=============================================
+    2019 UI changes
+    =============================================*/
+
+    /* Fade down hidden sections */
+
+    li.section.hidden a,
+    li.section.hidden .fa,
+    li.section.hidden h1,
+    li.section.hidden h2,
+    li.section.hidden h3,
+    li.section.hidden h4,
+    li.section.hidden h5,
+    li.section.hidden h6,
+    div.dimmed_text a,
+    div.dimmed_text .fa,
+    div.dimmed_text h1,
+    div.dimmed_text h2,
+    div.dimmed_text h3,
+    div.dimmed_text h4,
+    div.dimmed_text h5,
+    div.dimmed_text h6 {
+        opacity: 0.6 !important;
+    }
+
+    /* Position the editing on/off button*/
+
+    #edit-on-off {
+        position: absolute;
+        right: 15px;
+        top: 223px;
+    }
+
+    /* On smaller screens, hide button text and display pen icon only*/
+    @media screen and (max-width: 600px) {
+        #edit-on-off:before {
+            font-family: FontAwesome;
+            content: "\f040";
+        }
+
+        #edit-on-off span {
+            display: none;
+        }
+    }
+
+    /* FONT AWESOME */
+
+    .fa-circle {
+        color: #006cab;
+    }
+
+    li.section.hidden .fa-circle,
+    div.dimmed_text .fa-circle {
+        color: grey !important;
+    }
+
+    /* Resize Font-Awesome icons at smaller screen sizes*/
+
+    @media screen and (max-width: 860px) {
+        .fa-5x {
+            font-size: 4em !important;
+        }
+
+        .fa-4x {
+            font-size: 3em !important;
+        }
+    }
+
+    @media screen and (max-width: 600px) {
+        .fa-5x {
+            font-size: 2em !important;
+        }
+
+        .fa-4x {
+            font-size: 1.5em !important;
+        }
+    }
+
+    /* Extend right margins for left floted content*/
+    .float-md-left {
+        margin-right: 2em;
+    }
+
+    /* Fix positioning of 'New Activity' flag on grid format*/
+    .format-grid .course-content ul.gridicons li img.new_activity {
+       /*  content: url("https://lms.monash.edu/draftfile.php/5777508/user/draft/681255880/New-Activity.png"); */
+        margin-left: 160px !important;
+        margin-top: 97px !important;
+    }
+
+    /*=============================================
+    Existing FIT CSS overrides - As found at:
+    https://mahara.infotech.monash.edu/moodle/css/Moodle-deployment-s12018.css
+    =============================================*/
+    .monash-banner {
+        max-width: 1200px;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        display: block;
+    }
+
+    .brand {
+        display: none;
+    }
+
+    .banner-editable {
+        /* background: url("https://source.unsplash.com/XJXWbfSo2f0/1200x200") no-repeat center center;*/
+        background: url("https://mahara.infotech.monash.edu/moodle/img/fit-moodle-banner-blue.png") no-repeat center center;
+        background-size: 100%;
+        height: 150px;
+        text-shadow: 1px 1px 2px black;
+        margin: 0;
+        cursor: pointer;
+        color: #FFF;
+    }
+
+    .monash-banner .well {
+        background-color: #fcfcfc;
+        margin: 0;
+        padding: 0;
+    }
+
+    /*Banner buttons*/
+
+    .monash-banner .btn,
+    .monash-banner .btn a {
+        color: #000;
+        background-color: #fcfcfc;
+        background-image: none !important;
+        border: none !important;
+        padding: 4px 12px;
+        border-left: 1px solid red;
+    }
+
+    .monash-banner .btn:hover,
+    .monash-banner .btn:focus,
+    .monash-banner .btn:active,
+    .monash-banner .btn a:active,
+    .monash-banner .btn a:hover,
+    .monash-banner .btn a:focus {
+        color: black !important;
+        background-color: #eee !important;
+        background-image: none !important;
+        border: none !important;
+    }
+
+    .monash-banner .btn-group {
+        background-color: #fcfcfc;
+        /*width: 100%;*/
+        display: inline-block;
+        white-space: normal !important;
+    }
+
+    .monash-banner .btn-toolbar {
+        border-color: red;
+    }
+
+    .monash-banner .stream,
+    .monash-banner .stream:hover {
+        background-color: white !important;
+        color: black !important;
+        cursor: unset !important;
+        /*font-weight: bold;*/
+    }
+
+    /*EDITABLE BANNER TEXT*/
+
+    /*Set semitransparent background for banner text*/
+
+    .banner-editable .alpha-bg {
+        background: rgba(0, 0, 0, 0.5);
+        padding-right: 1em;
+        padding-left: 30px;
+        display: in-line;
+    }
+
+    /*Establish default Unsplash background image*/
+
+    .banner-editable .container-fluid {
+        background-color: white;
+        opacity: 0.9;
+    }
+
+    .banner-editable h1 {
+        margin-top: 0;
+        padding: 0.5em 0.5em 0.5em 0.5em;
+        font-size: 2.4em;
+        color: white;
+        font-weight: 400;
+    }
+
+    .banner-editable h1 strong {
+        font-weight: 500;
+    }
+
+    .banner-editable p {
+        font-size: 1.8em;
+        font-weight: 300;
+        font-style: italic;
+    }
+
+    #back-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        font-size: 3em;
+        width: 32px;
+        height: 32px;
+        text-align: center;
+        line-height: 30px;
+        color: #0076b1;
+        cursor: pointer;
+        border: 0;
+        border-radius: 2px;
+        text-decoration: none;
+        transition: opacity 0.2s ease-out;
+        opacity: 0;
+    }
+
+    #back-to-top:hover,
+    #back-to-top.show:hover {
+        opacity: 1;
+        transition: opacity 0.2s ease-out;
+    }
+
+    #back-to-top.show {
+        opacity: 0.5;
+    }
+
+    .sb-btn {
+        opacity: 0.5;
+        margin-right: 10px;
+        background: #0076b1;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        font-size: 1em;
+        padding: 4px 0 0 0;
+        border-radius: 6px;
+        right: 60px !important;
+    }
+
+    .sb-btn:after {
+        content: "FIT Online Support";
+    }
+
+    .sb-btn:hover {
+        opacity: 1;
+        transition: opacity 0.2s ease-out;
+    }
+
+    .sb-btn.en_bottom {
+        background-image: none;
+    }
+
+    /*
+    * @Author: Matt Chen
+    */
+    /*Customisation for Monash Color*/
+
+    h3,
+    h3 span a,
+    a,
+    ul li a,
+    #section-0,
+    #gridsectionname-0,
+    .icon_content .list-group-item,
+    .mdl-left a,
+    .mdl-right a,
+    .breadcrumb-item a,
+    .section-title a,
+    .mdl-left a,
+    .column a,
+    .page-link a,
+    .page-item a {
+        color: #006cab;
+    }
+
+    #page-footer {display:none;}
+
+    .list-group-item.active,
+    .list-group-item:hover {
+        background-color: #006cab;
+    }
+
+    .active .page-link {
+        background-color: #006cab;
+        color: #ffffff;
+    }
+
+    #icon2 {
+        color: #222222;
+    }
+
+    .iconhelp {
+        display: none;
+    }
+
+    #completionprogressid {
+        display: none;
+    }
+--></style>
+<script type="text/javascript">// <![CDATA[
+/*
+   * @Author: Milad Sayad
+   */
+
+    function getUserLimitation() {
+
+        var fit_email = $('.myprofileitem.email').text().toLowerCase();
+        console.log("@MS: fit_email = ", fit_email);
+
+        // whitelist of allowed users who DO NOT have the enrolment restriction
+        var allowed_users = [
+            "jamie.fulcher@monash.edu",
+            "margot.schuhmacher@monash.edu",
+            "matt.chen@monash.edu",
+            "milad.sayad@monash.edu",
+            "rajib.uddin@monash.edu",
+            "phillip.abramson@monash.edu"
+        ];
+
+        if ($.inArray(fit_email, allowed_users) > -1 || window.location.href.indexOf("limit=off") > 0) {
+            // I am an allowed user
+            console.log("@MS: allowed_users = ", allowed_users);
+            return false;
+        }
+        return true;
+    }
+
+    function limitUnitPage() {
+        if (window.location.href.indexOf("view.php?id=") > 0 && $('body.editing').length > 0) {
+            $("a[title='Set or change image']").css("display", "none");
+            $("a[title='Edit summary']").css("display", "none");
+            $("a[title='Move this section out of the grid']").css("display", "none");
+            $("a.add-sections").css("display", "none");
+
+            $("i[aria-label='Hide HTML block']").parent().hide();
+            $("i[aria-label='Hide Panopto block']").parent().hide();
+            $("i[aria-label='Hide Logged in user block']").parent().hide();
+        }
+    }
+
+    function limitImportEnrols() {
+        if (window.location.href.indexOf("userenrols/import.php?id= ") > 0) {
+            $("select#id_role_id option[value='1']").hide();
+            $("select#id_role_id option[value='1']").css("display", "none");
+            $("select#id_role_id option[value='3']").css("display", "none");
+            $("select#id_role_id option[value='20']").css("display", "none");
+            $("select#id_role_id option[value='4']").css("display", "none");
+            $("select#id_role_id option[value='5']").css("display", "none");
+            $('select#id_role_id').val('0').change();
+        }
+    }
+
+    function limitOtherUsers() {
+        if (window.location.href.indexOf("enrol/otherusers.php?id=") > 0) {
+            $("button[type='submit']").css("display", "none");
+            $("a.assignrolelink").css("display", "none");
+        }
+    }
+
+    function changeDefaultImport() {
+        if (window.location.href.indexOf("backup/import.php") > 0) {
+            $("input[type='checkbox']").prop("checked", false);
+            $("input#id_setting_root_activities").prop("checked", true);
+        }
+    }
+
+    /*  Quick Link */
+
+    var monashMoodleUrl = function () {
+        return "https://lms.monash.edu/";
+    };
+
+    var courseViewUrl = function (unitId) {
+        return monashMoodleUrl() + "course/view.php?id=" + unitId;
+    };
+
+    function shortNameExtractor() {
+        var unitShortname = document.querySelector('span.media-body').innerText;
+        var unitGradeUrl = $("a[data-key='grades']").attr("href");
+        var unitId = getUrlParameter('id');
+
+        // Extracting naming blocks from input (e.g., FITXXXX, S1, 2019)
+        var shortnameBlocks = unitShortname.split("_");
+
+        var unitCodes = shortnameBlocks[0];
+        var teachingPeriods = shortnameBlocks[1];
+        var year = shortnameBlocks[shortnameBlocks.length - 1];
+
+        // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+        var unitCodeArray = unitCodes.split("-");
+        var tPArray = teachingPeriods.split("-");
+
+        var unitTeachingFaculty = (unitCodes.indexOf("MAT") < 0) ? "FIT" : "MAT";
+
+        var unitMode = (teachingPeriods.indexOf("MO-TP") < 0) ? "Campus" : "Online";
+
+        var shortNameExtract = {
+            unitCodes: unitCodes,
+            teachingPeriods: teachingPeriods,
+            year: year,
+            unitCodeArray: unitCodeArray,
+            tPArray: tPArray,
+            unitTeachingFaculty: unitTeachingFaculty,
+            unitMode: unitMode,
+            unitGradeUrl: unitGradeUrl,
+            unitId: unitId
+        };
+        console.log("@MS: shortNameExtract = ", shortNameExtract);
+        return shortNameExtract;
+    }
+
+    function unitGuideJSONBuilder(unitCode, tpCode, tpYear) {
+        
+        var tpDict = {
+            'S1': 'S1-01',
+            'S2': 'S2-01',
+            'FY': 'FY-01',
+            'S2-S1': 'S2-S1-02',
+            'S2-SS': 'S2-SS-02',
+            'SSA': 'SSA-02',
+            'SSB': 'SSB-01',
+            'OCT-MY': 'OCT-MY-01',
+            'T3': 'T3-57',
+            'WS': 'WS-01',
+            'MO-TP1': 'MO-TP1-01',
+            'MO-TP2': 'MO-TP2-01',
+            'MO-TP3': 'MO-TP3-01',
+            'MO-TP4': 'MO-TP4-01',
+            'MO-TP5': 'MO-TP5-01',
+            'MO-TP6': 'MO-TP6-01'
+        };
+        
+        var ugJSON = {
+            href: "https://unitguidemanager.monash.edu/view?unitCode=" + unitCode + "&tpCode=" + tpDict[tpCode] + "&tpYear=" + tpYear,
+            text: unitCode + " Unit Guide",
+            
+        };
+        console.log("@MS: ugJSON = ", ugJSON);
+        return ugJSON;
+    }
+
+    function unitGuideBuilder() {
+
+        var unitGuidesArr = [];
+
+        const {unitCodes, teachingPeriods, year, unitCodeArray, tPArray, unitTeachingFaculty, unitMode} = shortNameExtractor();
+
+        // Generating Unit Guide link
+        // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+        if (tPArray.length > 1 && unitCodeArray.length > 1) {
+            // If there is a complex situation (i.e., Multile Unit codes or Multiple teaching periods)
+            // RULE: take first unit with first teaching period and last unit with last teaching period
+            unitGuidesArr = [...unitGuidesArr, unitGuideJSONBuilder(unitCodeArray[0], tPArray[0], year)];
+
+            // Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
+            if(tPArray[1] === "S1")  year = parseInt(year) + 1;
+            unitGuidesArr = [...unitGuidesArr,unitGuideJSONBuilder(unitCodeArray[unitCodeArray.length - 1], tPArray[1], year)];
+        } else {
+            // Handling normal cases including S2-S1-02 teaching period
+            for (var i = 0; i < unitCodeArray.length; i++) {
+                unitGuidesArr = [...unitGuidesArr,unitGuideJSONBuilder(unitCodeArray[i], teachingPeriods, year)];
+            }
+        }
+        console.log("@MS: unitGuides = ", unitGuidesArr);
+        return unitGuidesArr;
+    }
+
+    function addButtonToBlock (elementId, elementClass, elementHRef, elementText) {
+        document.getElementById(elementId).innerHTML += '<a class="' + elementClass + '" href="' + elementHRef +
+            '" role="button" target="_blank">' + elementText + '</a>';
+    }
+
+    function blockBuilder() {
+
+        const buttonStyle = "btn btn-link btn-sm btn-block quick-link-button",
+        htmlDivId = "ExternalLink";
+        const {unitCodes, unitTeachingFaculty, unitMode, unitGradeUrl}  = shortNameExtractor();
+        var buttonArray = [];
+        
+        if (unitTeachingFaculty === "FIT") {
+                var studentPortalUrl = (unitMode === "Campus") ? courseViewUrl('38028') : courseViewUrl('24532');
+                buttonArray = [...buttonArray, {href: studentPortalUrl, text: "IT Student Portal"}]
+        }
+        buttonArray = [...buttonArray,{href: unitGradeUrl, text: "My Grades"}, ...unitGuideBuilder()];
+
+        for (let i = 0; i < buttonArray.length; i++) {
+            console.log("@MS: button = ", buttonArray[i].href, buttonArray[i].text );
+            addButtonToBlock(htmlDivId, buttonStyle, buttonArray[i].href, buttonArray[i].text);
+        }
+    }
+    /*
+    * @Author: Greg Bird (@BirdyOz, greg.bird.oz@gmail.com)
+    * @First Created:   2019-01-15 16:05:23
+    * @Last Modified by:   birdyoz
+    * @Last Modified time: 2019-01-24 15:00:41
+    */
+    /*=============================================
+    2019 UI changes
+    =============================================*/
+
+    function back_to_top() {
+        if ($('#back-to-top').length) {
+            var scrollTrigger = 100, // px
+                backToTop = function () {
+                    var scrollTop = $(window).scrollTop();
+                    if (scrollTop > scrollTrigger) {
+                        $('#back-to-top').addClass('show');
+                    } else {
+                        $('#back-to-top').removeClass('show');
+                    }
+                };
+            backToTop();
+            $(window).on('scroll', function () {
+                backToTop();
+            });
+            $('#back-to-top').on('click', function (e) {
+                e.preventDefault();
+                $('html,body').animate({
+                    scrollTop: 0
+                }, 700);
+            });
+        }
+    }
+
+    function contact_support() {
+const {unitCodes, teachingPeriods, year, unitCodeArray, tPArray, unitTeachingFaculty, unitMode} = shortNameExtractor();
+        // Add 'Contact support', but only if editing is on
+        if ($('body.editing').length > 0) {
+            // Get user and environment variables
+            var fit_user = $('.myprofileitem.fullname').text();
+            console.log("@GB: fit_user = ", fit_user);
+            var fit_URL = document.location.href;
+            console.log("@GB: fit_URL = ", fit_URL);
+            var fit_ID = getUrlParameter('id');
+            console.log("@GB: fit_ID = ", fit_ID);
+            var fit_email = $('.myprofileitem.email').text();
+            console.log("@GB: fit_email = ", fit_email);
+            var fit_unit = $('.m-l-0 .font-weight-bold').text();
+            console.log("@GB: fit_unit = ", fit_unit);
+
+            // Load external script
+            $.getScript("//d3932137p5ikt7.cloudfront.net/widget_v3/loader.min.js")
+                .done(function (script, textStatus) {
+                    sb_contact_form('initialize', {
+                        company: 'fit-monash',
+                        height: '500px',
+                        position: 'bottom',
+                        email: fit_email,
+                        name: fit_user,
+                        subject: 'Moodle issue in \'' + unitCodes +"_"+ teachingPeriods + "_" + year + '\' (URL: ' + window.location + ')',
+                        locale: 'en',
+                        captcha: 'false',
+                        forwarding_address_id: '26544'
+                    });
+                })
+                .fail(function (jqxhr, settings, exception) {
+                    console.log("@GB: exception = ", exception);
+                    console.log("@GB: settings = ", settings);
+                });
+        }
+    }
+
+    function extract_show_hide() {
+        // Target the turn editing on/off menu item
+        var menu = $('.context-header-settings-menu a[href*="edit=o"]');
+
+        if (menu.length) {
+            console.log("@GB: menu = ", menu);
+            var html = $(menu).html();
+
+            // set different button themes for editing on or off
+            if (html.indexOf("Turn editing on") >= 0) {
+                var state = "btn-primary";
+            } else {
+                var state = "btn-success";
+            }
+            console.log("@GB: html = ", html);
+            var href = $(menu).attr('href');
+            console.log("@GB: href = ", href);
+            var btn = '<a class="btn ' + state + '" id="edit-on-off" href="' + href + '"><span>' + html + '</span></a>';
+            console.log("@GB: btn = ", btn);
+
+            // Add button before breadcrumbs
+            $("#page-navbar").before(btn);
+        }
+    }
+
+    function limit_enrolment_options() {
+
+        //If I am on the enrolment screem
+        if (window.location.href.indexOf("user/index.php?id=") > 0) {
+            // I am NOT an allowed user so restrict my access
+            $('.inplaceeditable').attr('data-options', '');
+            $('.quickediticon .fa-pencil').hide();
+
+            // Hide edit and un enrol links
+
+            $('a.editenrollink').hide();
+            $('a.unenrollink').hide();
+
+            //Selectively turn these back on again, if role = guest
+            var guests = $('a.quickeditlink');
+            console.log("@GB: guests = ", guests);
+            $.each(guests, function (index, val) {
+                /* iterate through array or object */
+                txt = $.trim($(this).text());
+                console.log("@GB: txt = ", txt);
+                // If Guest
+                if (txt == "Guest") {
+                    console.log("@GB: Guest found");
+                    // Turn links back on again
+                    $('a.editenrollink').eq(index).show();
+                    $('a.unenrollink').eq(index).show();
+                }
+            });
+
+            // Listen for mouse click on 'Enrol users' button
+            $(".enrol_manual_plugin").click(function () {
+                // Wait 3 secs while the list loads
+                setTimeout(function () {
+                    var options = $('select#id_roletoassign option');
+                    if (options.length > 0) {
+                        console.log("@GB: options = ", options);
+                        $.each(options, function (index, val) {
+                            txt = $(this).text();
+                            console.log("@GB: txt = ", txt);
+                            if (txt == "Guest") {
+                                console.log("@GB: Guest found");
+                                $(this).attr('selected', 'selected');
+                            } else {
+                                $(this).remove()
+                            }
+                            /* iterate through array or object */
+                        });
+                    }
+                }, 2000);
+            });
+        }
+    }
+
+    var getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = window.location.search.substring(1),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+            }
+        }
+    };
+
+    // JQuery - on page load
+    $(function () {
+
+        if (getUserLimitation()) {
+            limitUnitPage();
+            limitOtherUsers();
+            
+ 
+/*
+    limitImportEnrols();
+
+            if (shortNameExtractor().unitTeachingFaculty === "FIT") {
+                // Limit the enrolments for the lecturer role to just 'guest'
+                limit_enrolment_options();
+            }
+        */
+        }
+
+        blockBuilder();
+        $("img.new_activity").attr("src","https://lms.monash.edu/draftfile.php/5777508/user/draft/681255880/New-Activity.png");
+
+        // Add back to top button
+        back_to_top();
+
+        // In the Boost theme, extract the show-hide button from the cog menu and integrate back into UI
+        extract_show_hide();
+
+        // Invoke contact support button
+        contact_support();
+
+        changeDefaultImport();
+        
+
+        if ((window.location.href.indexOf("action=grading") > 0 && window.location.href.indexOf("mod/assign/view.php") > 0) || window.location.href.indexOf("/grade/report/history/index.php") > 0 || window.location.href.indexOf("grade/report/grader/index.php") > 0 ) {
+            $("section[data-region='blocks-column']").hide();
+$("section#region-main").removeClass('has-blocks');
+
+        }
+        localStorage.getItem('liElements');
+        localStorage.getItem('aElements');
+        var btn = localStorage.getItem('btn');
+
+        localStorage.getItem('aElements');
+        localStorage.getItem('tdElements');
+
+        var btn = document.getElementsByClassName('btn');
+        for (var i = 0; i < btn.length; i++) {
+            btn[i].style.color = localStorage.getItem('btn');
+        }
+    });
+// ]]></script>
+<div>
+<div id="ExternalLink"></div>
+<!-- 
+@Author: Matt Chen 
+** This is for Syntax Highlighting **
+-->
+<p><link rel="stylesheet" href="https://mahara.infotech.monash.edu/moodle/js/highlight/agate.min.css" /></p>
+<p>
+<script src="https://mahara.infotech.monash.edu/moodle/js/highlight/highlight.min.js" type="text/javascript"></script>
+<script type="text/javascript">// <![CDATA[
+hljs.initHighlightingOnLoad();
+// ]]></script>
+</p>
+<a href="#" id="back-to-top" title="Back to top"><i class="fa fa-arrow-circle-up"></i></a></div>
+<!--
+<div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel" data-interval="8000">
+<div class="carousel-inner">
+<div class="carousel-item active"><a href="https://lms.monash.edu/mod/page/view.php?id=6065347" target="_blank"> <img class="d-block w-100" src="https://lms.monash.edu/draftfile.php/5777508/user/draft/681255880/teaching-award-S1-2019.gif" alt="Teaching Award Nominations" /> </a></div>
+</div>
+
+<a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-slide="prev"> <span class="carousel-control-prev-icon" aria-hidden="true"></span> <span class="sr-only">Previous</span> </a> <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-slide="next"> <span class="carousel-control-next-icon" aria-hidden="true"></span> <span class="sr-only">Next</span> </a></div>-->
