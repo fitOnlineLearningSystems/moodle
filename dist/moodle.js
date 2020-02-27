@@ -475,7 +475,7 @@ var FITMOODLE = (function() {
 			return this;
 		},
 		/**
-			 * Replace
+		* Replace
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
 			 */
 		changeNewActivityIcon: function() {
