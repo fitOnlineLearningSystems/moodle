@@ -245,6 +245,7 @@ div.dimmed_text h6 {
 	display: table-cell;
 	border-radius: 50%;
 	background: #ef7701;
+	background-image: url() no-repeat;
 }
 
 #back-to-top {

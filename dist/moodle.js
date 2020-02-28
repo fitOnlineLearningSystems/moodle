@@ -477,11 +477,11 @@ var FITMOODLE = (function() {
 		/**
 			 * Replace
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
-			 */
+			 
 		changeNewActivityIcon: function() {
 			$('img.new_activity').attr('src', ' ');
 			return this;
-		},
+		},*/
 		/**
 			 * Hide left-column blocks in pages (e.g., assignmnet and gradebook) to free up space for the iframe .
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
