@@ -479,10 +479,7 @@ var FITMOODLE = (function() {
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
 			 */
 		changeNewActivityIcon: function() {
-			$('img.new_activity').attr(
-				'src',
-				'https://lms.monash.edu/draftfile.php/3075058/user/draft/44115094/New-Activity.png'
-			);
+			$('img.new_activity').attr('src', '');
 			return this;
 		},
 		/**
