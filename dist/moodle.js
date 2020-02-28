@@ -479,7 +479,7 @@ var FITMOODLE = (function() {
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
 			 */
 		changeNewActivityIcon: function() {
-			$('img.new_activity').attr('src', '');
+			$('img.new_activity').attr('src', ' ');
 			return this;
 		},
 		/**
