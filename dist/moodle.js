@@ -316,8 +316,9 @@ var FITMOODLE = (function() {
 			if (Offering.unitCodes && /\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
 				// Generating Unit Guide link
 				if (Offering.teachingPeriods.length > 1) {
+					// Handling teaching period where there is a dash - (e.g., S1-S2, S2-S1)
 					if (Offering.unitCodes.length === 1) {
-						// Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+						// Handling a unit code with complex teaching period(FIT5144_S2-S1_XXXX).
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
 						);
@@ -325,13 +326,13 @@ var FITMOODLE = (function() {
 							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
 						);
 					} else {
-						// If there is a complex situation (i.e., Multiple Unit Codes or Teaching Periods)
+						// handling complex situation (i.e., Multiple Unit Codes or Teaching Periods) e.g., FIT5126-FIT5127-FIT5128_S1-S2_XXXX)
 						// RULE: take first unit with first teaching period and last unit with last teaching period
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
 						);
 						addButtonToQuickLink(
-							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
+							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
 						);
 
 						// Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
