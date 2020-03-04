@@ -349,6 +349,13 @@ var FITMOODLE = (function() {
 								Offering.year
 							)
 						);
+						addButtonToQuickLink(
+							unitGuideFlexibleButton(
+								Offering.unitCodes[Offering.unitCodes.length - 1],
+								Offering.teachingPeriods[1],
+								Offering.year
+							)
+						);
 					}
 				} else {
 					// Handling normal cases including S2-S1-02 teaching period
@@ -356,10 +363,14 @@ var FITMOODLE = (function() {
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
 						);
+						addButtonToQuickLink(
+							unitGuideFlexibleButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
+						);
 					}
 				}
 			} else {
 				addButtonToQuickLink(unitGuideButton());
+				addButtonToQuickLink(unitGuideFlexibleButton());
 			}
 			return this;
 		},
