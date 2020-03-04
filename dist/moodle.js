@@ -156,6 +156,28 @@ var FITMOODLE = (function() {
 			};
 		}
 	}
+	
+	//Temporary fix for flexible unit guides. Remove at completion of flexible delivery
+	function unitGuideFlexibleButton(unitCode, tpCode, tpYear) {
+		if (unitCode && tpCode && tpYear) {
+			return {
+				elementHref:
+					unitGuideBaseUrl +
+					'/view?unitCode=' +
+					unitCode +
+					'&tpCode=' +
+					tpCode + '-FF' +
+					'&tpYear=' +
+					tpYear,
+				elementText: unitCode + ' Unit Guide(Flexible)'
+			};
+		} else {
+			return {
+				elementHref: unitGuideBaseUrl + '/refine?' + unitguideSearchQuery,
+				elementText: 'Search Unit Guides'
+			};
+		}
+	}
 
 	/**
 		* @param userInfo Information about the user.
