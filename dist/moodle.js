@@ -156,19 +156,13 @@ var FITMOODLE = (function() {
 			};
 		}
 	}
-	
+
 	//Temporary fix for flexible unit guides. Remove at completion of flexible delivery
 	function unitGuideFlexibleButton(unitCode, tpCode, tpYear) {
 		if (unitCode && tpCode && tpYear) {
 			return {
 				elementHref:
-					unitGuideBaseUrl +
-					'/view?unitCode=' +
-					unitCode +
-					'&tpCode=' +
-					tpCode + '-FF' +
-					'&tpYear=' +
-					tpYear,
+					unitGuideBaseUrl + '/view?unitCode=' + unitCode + '&tpCode=' + tpCode + '-FF' + '&tpYear=' + tpYear,
 				elementText: unitCode + ' Unit Guide(Flexible)'
 			};
 		} else {
@@ -516,11 +510,11 @@ var FITMOODLE = (function() {
 		/**
 			 * Replace
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
-			 
+			 */
 		changeNewActivityIcon: function() {
 			$('img.new_activity').attr('src', ' ');
 			return this;
-		},*/
+		},
 		/**
 			 * Hide left-column blocks in pages (e.g., assignmnet and gradebook) to free up space for the iframe .
 			 * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
