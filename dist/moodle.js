@@ -327,11 +327,17 @@ var FITMOODLE = (function() {
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
 						);
+						addButtonToQuickLink(
+							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
+						);
 					} else {
 						// If there is a complex situation (i.e., Multiple Unit Codes or Teaching Periods)
 						// RULE: take first unit with first teaching period and last unit with last teaching period
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
+						);
+						addButtonToQuickLink(
+							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
 						);
 
 						// Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
