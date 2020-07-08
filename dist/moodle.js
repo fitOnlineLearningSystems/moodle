@@ -132,6 +132,7 @@ var FITMOODLE = (function() {
 
 	/**
 	 * Returns url and text for Moodle Student Portal, given Unit Code, Teaching Period, and Year
+	 * https://handbook.monash.edu/2020/units/FIT5197
 	 * @param {string} id
 	 * @returns {object}
 	 * @protected
@@ -141,23 +142,20 @@ var FITMOODLE = (function() {
 			return {
 				elementHref:
 					unitGuideBaseUrl +
-					'/view?unitCode=' +
-					unitCode +
-					'&tpCode=' +
-					tpDictonary[tpCode] +
-					'&tpYear=' +
-					tpYear,
-				elementText: unitCode + ' Unit Guide'
+					tpYear +
+					'/units/' +
+					unitCode,
+				elementText: unitCode + ' Handbook'
 			};
 		} else {
 			return {
-				elementHref: unitGuideBaseUrl + '/refine?' + unitguideSearchQuery,
-				elementText: 'Search Unit Guides'
+				elementHref: unitGuideBaseUrl,
+				elementText: 'Search Handbook'
 			};
 		}
 	}
 
-	//Temporary fix for flexible unit guides. Remove at completion of flexible delivery
+	/*//Temporary fix for flexible unit guides. Remove at completion of flexible delivery
 	function unitGuideFlexibleButton(unitCode, tpCode, tpYear) {
 		if (unitCode && tpCode && tpYear) {
 			return {
@@ -171,7 +169,7 @@ var FITMOODLE = (function() {
 				elementText: 'Search Unit Guides'
 			};
 		}
-	}
+	}*/
 
 	/**
 		* @param userInfo Information about the user.
@@ -322,18 +320,18 @@ var FITMOODLE = (function() {
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
 						);
-						addButtonToQuickLink(
-							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
-						);
+						//addButtonToQuickLink(
+							//unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
+						//);
 					} else {
 						// handling complex situation (i.e., Multiple Unit Codes or Teaching Periods) e.g., FIT5126-FIT5127-FIT5128_S1-S2_XXXX)
 						// RULE: take first unit with first teaching period and last unit with last teaching period
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
 						);
-						addButtonToQuickLink(
-							unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
-						);
+						//addButtonToQuickLink(
+							//unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
+						//);
 
 						// Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
 						if (Offering.teachingPeriods[1] === 'S1') Offering.year = parseInt(Offering.year) + 1;
@@ -344,13 +342,13 @@ var FITMOODLE = (function() {
 								Offering.year
 							)
 						);
-						addButtonToQuickLink(
-							unitGuideFlexibleButton(
-								Offering.unitCodes[Offering.unitCodes.length - 1],
-								Offering.teachingPeriods[1],
-								Offering.year
-							)
-						);
+						//addButtonToQuickLink(
+							//unitGuideFlexibleButton(
+								//Offering.unitCodes[Offering.unitCodes.length - 1],
+								//Offering.teachingPeriods[1],
+								//Offering.year
+							//)
+						//);
 					}
 				} else {
 					// Handling normal cases including S2-S1-02 teaching period
@@ -358,14 +356,14 @@ var FITMOODLE = (function() {
 						addButtonToQuickLink(
 							unitGuideButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
 						);
-						addButtonToQuickLink(
-							unitGuideFlexibleButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
-						);
+						//addButtonToQuickLink(
+							//unitGuideFlexibleButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
+						//);
 					}
 				}
 			} else {
 				addButtonToQuickLink(unitGuideButton());
-				addButtonToQuickLink(unitGuideFlexibleButton());
+				//addButtonToQuickLink(unitGuideFlexibleButton());
 			}
 			return this;
 		},
