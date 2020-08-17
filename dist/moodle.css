@@ -409,7 +409,7 @@ display: none !important;
 }
 /*centres all HTML block card titles as well as the activity block and panopto block*/
 .block_html .card-title, .block_activity_modules .card-title, .block_panopto .card-title, .block_callista .card-title {
-text-align: center;
+text-align: left;
 }
 
 /*instance-484478 refers to the SETU block*/
@@ -418,7 +418,7 @@ text-align: center;
 #instance-484478-header {
 background: #f0f0f0 !important;
 color: #4a4a4a !important;
-text-align: center !important;
+text-align: left!important;
 }
 /*This adds a border the same colour as the header*/
 #inst484478 .card-text {
@@ -480,9 +480,10 @@ transition: color .15s ease-in-out,background-color .15s ease-in-out,border-colo
 display: none !important;
 color: #fff !important;
 }
-.list-group-item:nth-child(3) {
+/*  Hides gradebook icon from the hamburger menu */
+/*.list-group-item:nth-child(3) {
 display: none !important;
-}
+}*/
 /*This is the styling for a Bootstrap button that contains the colours used in the Navigation Banner. It should be used in conjunction with the classes .btn and .btn-default to work similarly to Bootstrap buttons.*/
 .btn-it {
 background: #006DAE;
