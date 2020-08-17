@@ -529,6 +529,41 @@ background: rgb(0,108,171);
 border: 30px solid #006DAE;
 color: #fff !important;
 }
+.alert-it-red { 
+background: #f85a40; 
+border: 30px solid #f85a40; 
+color: #fff !important;
+opacity: 0.8 !important;
+}
+.alert-it-blue { 
+background: #006cab; 
+border: 30px solid #006cab; 
+color: #fff !important;
+opacity: 0.8 !important;}
+
+.alert-it-important { 
+background: #fbb034; 
+border: 30px solid #fbb034; 
+color: #fff !important;
+opacity: 0.9 !important;
+}
+
+.alert-it-red h4 {
+	color: #fff !important;
+}
+
+.alert-it-blue h3 {
+	color: #fff !important;
+}
+
+.alert-it-blue h4 {
+	color: #fff !important;
+}
+
+.alert-it-important h4 {
+	color: #fff !important;
+}
+
 .border-it {
 border: 5px solid #006DAE;
 }
