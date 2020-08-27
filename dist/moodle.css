@@ -476,7 +476,12 @@ box-shadow: 0 0 0 0.2rem rgba(61, 144, 194, .5);
 border: 2px solid #3d90c2 !important;
 transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
+/*
 .section-navigation .mdl-right, .section-navigation .mdl-left, .addresourcedropdown, .jumpmenu {
+display: none !important;
+color: #fff !important;
+}*/
+.addresourcedropdown, .jumpmenu {
 display: none !important;
 color: #fff !important;
 }
