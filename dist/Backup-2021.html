@@ -1,0 +1,2014 @@
+<!-- CODE TO BE MOVED IN GITHUB - START -->
+<p></p>
+<!-- Javascript - START -->
+<p>
+<script type="text/javascript">// <![CDATA[
+/**
+    * FUNCTION
+    * @module FITMOODLE
+    */
+
+var FITMOODLE = (function() {
+    var MoodleBaseUrl = '';
+    var unitGuideBaseUrl = '';
+    var unitguideSearchQuery = '';
+    var queryToBypassRestriction = '';
+    var tpDictonary = {};
+    var powerUsers = [];
+    var Offering = new Object();
+    var User = new Object();
+    var Unit = new Object();
+    var Callista = new Object();
+    /**
+        * Search curent URL and returns value given the query string (in url)
+        * @function getQueryVariable
+        * @param variable {string}
+        * @returns {string} value pair (if found) or null (if not found)
+        */
+    function getQueryString(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return null;
+    }
+
+    /**
+        * Loop through object and return Error if any object is null
+        * @function consolePassOrFail
+        * @param text Information about the user.
+        * @param object The name of the user
+        */
+    function consolePassOrFail(text, object) {
+        !Object.values(object).every((o) => o === null)
+            ? console.log('%c PASS ', 'color: white; background-color: #95B46A', text, object)
+            : console.log('%c FAIL ', 'color: white; background-color: #D33F49', text, object);
+    }
+
+    /**
+     * 
+     * @class Unit
+     */
+    function getUnit() {
+        Unit.shortname = document.querySelector('span.media-body')
+            ? document.querySelector('span.media-body').innerText
+            : null;
+        Unit.id = getQueryString('id') || 'Not a Moodle unit';
+        Unit.gradeUrl = document.querySelector("a[data-key='grades']")
+            ? document.querySelector("a[data-key='grades']").getAttribute('href')
+            : null;
+    }
+
+    /**
+         * @class User
+         */
+    function getUser() {
+        User.email = document.querySelector('.myprofileitem.email')
+            ? document.querySelector('.myprofileitem.email').innerText.toLowerCase()
+            : null;
+        if (!User.email) {
+            User.email = document.querySelector('.myprofileitem.city')
+                ? document.querySelector('.myprofileitem.city').innerText.toLowerCase().replace('email address: ', '')
+                : null;
+        }
+        User.fullName = document.querySelector('.myprofileitem.fullname')
+            ? document.querySelector('.myprofileitem.fullname').innerText
+            : null;
+        User.hasEditingAccess = document.querySelector("a[href*='&edit=']") ? true : false;
+        User.turnedEditingOn = document.querySelector('body.editing') ? true : false;
+    }
+
+    /**
+         * @class Callista
+         */
+    function getCallista() {
+        var callistaBlock = document.querySelectorAll('section.block_callista');
+        var nodelist = document.querySelectorAll('section.block_callista div.card-text a[onclick]');
+        var noCallista = document.querySelector('section.block_callista p');
+        if (callistaBlock.length == 0) {
+            Callista.attachment = null;
+        } else if (nodelist.length > 0) {
+            Callista.attachment = [ ...nodelist ].map((x) => x.innerText);
+        } else {
+            Callista.attachment = noCallista.innerText;
+        }
+    }
+
+    /**
+         * @class Offering
+         */
+    function getOffering() {
+        //avoid throwing error for shortnames that do not follow the pattern (has _ less than 2)
+        if ((Unit.shortname.match(/_/g) || []).length < 2) return;
+        Offering.shortnameBlocks = Unit.shortname.split('_');
+        Offering.unitCodes = Offering.shortnameBlocks[0].split('-'); // Handling multiple unit codes and teaching periods (e.g., FITXXXX-FITYYYY, S1-S2)
+        Offering.teachingPeriodBlock = Offering.shortnameBlocks[1];
+        Offering.teachingPeriods = Offering.teachingPeriodBlock.split('-');
+        Offering.campus =
+            Offering.shortnameBlocks.length > 3 ? Offering.shortnameBlocks[2].split('-') : 'One for all campuses';
+        Offering.year = Offering.shortnameBlocks[Offering.shortnameBlocks.length - 1].split('-');
+        Offering.taughtByFIT = Offering.unitCodes[0].indexOf('FIT') >= 0 ? true : false;
+        Offering.monashOnline = Offering.teachingPeriodBlock.indexOf('MO-TP') >= 0 ? true : false;
+    }
+
+    /**
+         * Returns url and text for Moodle Student Portal, given Moodle unit id
+         * @function studentPortalButton
+         * @param {string} idQueryString
+         * @returns {object}
+        */
+    function studentPortalButton(idQueryString) {
+        if (Unit.id) {
+            return {
+                elementHref: MoodleBaseUrl + '/course/view.php?id=' + idQueryString,
+                elementText: '<span><i class="fas fa-link"></i>  IT Student Portal</span>'
+            };
+        } else {
+            return {
+                elementHref: MoodleBaseUrl,
+                elementText: 'Moodle Dashboard'
+            };
+        }
+    }
+
+    /**
+     * Returns url and text for Moodle Student Portal, given Unit Code, Teaching Period, and Year
+     * https://handbook.monash.edu/2020/units/FIT5197
+     * @param {string} id
+     * @returns {object}
+     * @protected
+     */
+    function unitGuideButton(unitCode, tpCode, tpYear) {
+        if (unitCode && tpCode && tpYear) {
+            return {
+                elementHref:
+                    unitGuideBaseUrl +
+                    tpYear +
+                    '/units/' +
+                    unitCode,
+                elementText: '<span><i class="fas fa-external-link-alt"></i>  ' + unitCode + ' Handbook</span>'
+            };
+        } else {
+            return {
+                elementHref: unitGuideBaseUrl,
+                elementText: '<span><i class="fas fa-external-link-alt"></i>   Search Handbook</span>'
+            };
+        }
+    }
+
+    /*//Temporary fix for flexible unit guides. Remove at completion of flexible delivery
+    function unitGuideFlexibleButton(unitCode, tpCode, tpYear) {
+        if (unitCode && tpCode && tpYear) {
+            return {
+                elementHref:
+                    unitGuideBaseUrl + '/view?unitCode=' + unitCode + '&tpCode=' + tpCode + '-FF' + '&tpYear=' + tpYear,
+                elementText: unitCode + ' Unit Guide(Flexible)'
+            };
+        } else {
+            return {
+                elementHref: unitGuideBaseUrl + '/refine?' + unitguideSearchQuery,
+                elementText: 'Search Unit Guides'
+            };
+        }
+    }*/
+
+    /**
+        * @param userInfo Information about the user.
+        * @param userInfo.name The name of the user.
+        * @param userInfo.email The email of the user.
+        */
+    function addButtonToQuickLink({ elementHref, elementText }) {
+        const parentElementId = 'QuickLink',
+            elementClass = 'btn btn-link btn-sm btn-block quick-link-button';
+
+        document.getElementById(parentElementId).innerHTML +=
+            '<a class="' +
+            elementClass +
+            '" href="' +
+            elementHref +
+            '" role="button" target="_blank">' +
+            elementText +
+            '</a>';
+    }
+
+    return {
+        init: function() {
+            getUnit();
+            consolePassOrFail('@MS: Unit set ', Unit);
+            getUser();
+            consolePassOrFail('@MS: User set ', User);
+            getOffering();
+            consolePassOrFail('@MS: Offering set ', Offering);
+            getCallista();
+            consolePassOrFail('@MS: Callista set ', Callista);
+            return this;
+        },
+        /**
+             * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+             * @public
+             * @function setMoodleBaseUrl
+             * @param {string} url 
+             * @return {this} this, chainable
+             */
+        setMoodleBaseUrl: function(urlString) {
+            if (typeof urlString === 'string' || urlString instanceof String) MoodleBaseUrl = urlString;
+            consolePassOrFail('@MS: Moodle Base Url set ', MoodleBaseUrl);
+            return this;
+        },
+        /**
+             * @function setUnitGuideBaseUrl 
+             * Sets url base (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+             * @public
+             * @param {string} url 
+             * @return {this} this, chainable
+             */
+        setUnitGuideBaseUrl: function(urlString) {
+            if (typeof urlString === 'string' || urlString instanceof String) unitGuideBaseUrl = urlString;
+            consolePassOrFail('@MS: Unit Guide Base Url set ', unitGuideBaseUrl);
+            return this;
+        },
+        /**
+             * @function setUnitGuideSearchUrl
+             * Sets url base (e.g., "https://unitguidemanager.monash.edu"). WARN: do not put slash (/) at the end
+             * @public
+             * @param {string} url 
+             * @return {this} this, chainable
+             */
+        setUnitGuideSearchUrl: function(urlExtension) {
+            if (typeof urlExtension === 'string' || urlExtension instanceof String) unitguideSearchQuery = urlExtension;
+            consolePassOrFail('@MS: Unit Guide Search Query set ', unitguideSearchQuery);
+            return this;
+        },
+        /**
+             * @function setTeachingPeriodsDictionary
+             * Sets a value pair for converting shorten teaching periods to official teaching periods (e.g., "{'S1':'S1-01'}").
+             * @public
+             * @param {string} url 
+             * @return {this} this, chainable
+             */
+        setTeachingPeriodsDictionary: function(obj) {
+            if (typeof obj === 'object' || obj instanceof Object) tpDictonary = obj;
+            consolePassOrFail('@MS: Teaching Period Dictionary set ', tpDictonary);
+            return this;
+        },
+        /**
+             * @function setMoodlePowerUsers
+             * Sets list (e.g., "https://lms.monash.edu"). WARN: do not put slash (/) at the end
+             * @public
+             * @param {string} url 
+             * @return {this} this, chainable
+             */
+        setMoodlePowerUsers: function(emialArray, queryString) {
+            if (Array.isArray(emialArray)) {
+                powerUsers = emialArray;
+            }
+            consolePassOrFail('@MS: Power Users set ', powerUsers);
+            if (typeof queryString === 'string' || queryString instanceof String) {
+                queryToBypassRestriction = queryString;
+            }
+            consolePassOrFail('@MS: Bypass Query set ', queryToBypassRestriction);
+            User.hasPowerUserAccess =
+                powerUsers.includes(User.email) || document.URL.indexOf(queryToBypassRestriction) > 0 ? true : false;
+            return this;
+        },
+        /**
+             * @function addStudentPortal
+             * Adds a button pointing to IT Student Portal
+             * @public
+             * @return {this} this, chainable
+             */
+        addStudentPortal: function() {
+            // add IT Student Portal
+            if (Offering.taughtByFIT) {
+                var btn = Offering.monashOnline ? studentPortalButton('24532') : studentPortalButton('38028');
+                addButtonToQuickLink(btn);
+            }
+            consolePassOrFail('@MS: Student Portal =', btn);
+            return this;
+        },
+        /**
+             * Adds a button pointing to IT Student Portal
+             * Executes if gradebook is visible to students (i.e., Edit Settings > Appearance > Show gradebook to students)
+             * @function addMyGrades
+             * @public
+             * @return {this} this, chainable
+             */
+        addMyGrades: function() {
+            // add My Grades
+            if (Unit.gradeUrl) {
+                addButtonToQuickLink({
+                    elementHref: Unit.gradeUrl,
+                    elementText: '<span><i class="fas fa-table"></i>  My Grades</span>'
+                });
+            }
+            return this;
+        },
+        
+
+       /* ADD UNIT PREVIEW BUTTON */
+        addUnitPreviews: function() {
+            // add Unit Previews link
+                addButtonToQuickLink({
+                    elementHref: 'https://lms.monash.edu/local/preview/search.php',
+                    elementText: '<span><i class="fas fa-search"></i> Unit Previews</span>'
+            });
+            return this;
+        },
+
+        /**
+             * Add a button (or button) pointing to Unit Guides
+             * Executes if a Callista is being attached and the unit shortname starts with a unit code (i.e., 3 letters followed by 4 digits)
+             * @function addUnitGuide
+             * @public
+             * @return {this} this, chainable
+             * @memberof class:FITMOODLE
+             */
+        addUnitGuide: function() {
+            if (Offering.unitCodes && /\w{3}\d{4}/g.test(Offering.unitCodes[0])) {
+                // Generating Unit Guide link
+                if (Offering.teachingPeriods.length > 1) {
+                    // Handling teaching period where there is a dash - (e.g., S1-S2, S2-S1)
+                    if (Offering.unitCodes.length === 1) {
+                        // Handling a unit code with complex teaching period(FIT5144_S2-S1_XXXX).
+                        addButtonToQuickLink(
+                            unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
+                        );
+                        //addButtonToQuickLink(
+                            //unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriodBlock, Offering.year)
+                        //);
+                    } else {
+                        // handling complex situation (i.e., Multiple Unit Codes or Teaching Periods) e.g., FIT5126-FIT5127-FIT5128_S1-S2_XXXX)
+                        // RULE: take first unit with first teaching period and last unit with last teaching period
+                        addButtonToQuickLink(
+                            unitGuideButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
+                        );
+                        //addButtonToQuickLink(
+                            //unitGuideFlexibleButton(Offering.unitCodes[0], Offering.teachingPeriods[0], Offering.year)
+                        //);
+
+                        // Year needs to be adjusted if the second part of teaching period block is S1. Beacuse the S1 will be the year after.
+                        if (Offering.teachingPeriods[1] === 'S1') Offering.year = parseInt(Offering.year) + 1;
+                        addButtonToQuickLink(
+                            unitGuideButton(
+                                Offering.unitCodes[Offering.unitCodes.length - 1],
+                                Offering.teachingPeriods[1],
+                                Offering.year
+                            )
+                        );
+                        //addButtonToQuickLink(
+                            //unitGuideFlexibleButton(
+                                //Offering.unitCodes[Offering.unitCodes.length - 1],
+                                //Offering.teachingPeriods[1],
+                                //Offering.year
+                            //)
+                        //);
+                    }
+                } else {
+                    // Handling normal cases including S2-S1-02 teaching period
+                    for (var i = 0; i < Offering.unitCodes.length; i++) {
+                        addButtonToQuickLink(
+                            unitGuideButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
+                        );
+                        //addButtonToQuickLink(
+                            //unitGuideFlexibleButton(Offering.unitCodes[i], Offering.teachingPeriods[0], Offering.year)
+                        //);
+                    }
+                }
+            } else {
+                addButtonToQuickLink(unitGuideButton());
+                //addButtonToQuickLink(unitGuideFlexibleButton());
+            }
+            return this;
+        },
+        /**  
+             * Add a button pointing to IT Student Portal
+             * Executes if gradebook is visible to students (i.e., Edit Settings > Appearance > Show gradebook to students)
+             * @function addTurnEditingButton
+             * @memberof class:FITMOODLE 
+             */
+        addTurnEditingButton: function() {
+            // Target the turn editing on/off menu item
+            var menu = $('.context-header-settings-menu a[href*="edit=o"]');
+
+            if (menu.length) {
+                console.log('@GB: menu = ', menu);
+                var html = $(menu).html();
+
+                // set different button themes for editing on or off
+                if (html.indexOf('Turn editing on') >= 0) {
+                    var state = 'btn-primary';
+                } else {
+                    var state = 'btn-success';
+                }
+                console.log('@GB: html = ', html);
+                var href = $(menu).attr('href');
+                console.log('@GB: href = ', href);
+                var btn =
+                    '<a class="btn ' + state + '" id="edit-on-off" href="' + href + '"><span>' + html + '</span></a>';
+                console.log('@GB: btn = ', btn);
+
+                // Add button before breadcrumbs
+                $('#page-navbar').before(btn);
+            }
+            return this;
+        },
+        addSupportBee: function() {
+            // Add 'Contact support', but only if editing is on
+            if ($('body.editing').length > 0) {
+                // Load external script
+                $.getScript('//d3932137p5ikt7.cloudfront.net/widget_v3/loader.min.js')
+                    .done(function(script, textStatus) {
+                        sb_contact_form('initialize', {
+                            company: 'fit-monash',
+                            height: '500px',
+                            position: 'bottom',
+                            email: User.email,
+                            name: User.fullName,
+                            subject: "Moodle issue in '" + Unit.shortname + ' (URL: ' + window.location + ')',
+                            locale: 'en',
+                            captcha: 'false',
+                            forwarding_address_id: '26544'
+                        });
+                    })
+                    .fail(function(jqxhr, settings, exception) {
+                        console.log('@GB: exception = ', exception);
+                        console.log('@GB: settings = ', settings);
+                    });
+            }
+            return this;
+        },
+        addBackToTop: function() {
+            if ($('#back-to-top').length) {
+                var scrollTrigger = 100, // px
+                    backToTop = function() {
+                        var scrollTop = $(window).scrollTop();
+                        if (scrollTop > scrollTrigger) {
+                            $('#back-to-top').addClass('show');
+                        } else {
+                            $('#back-to-top').removeClass('show');
+                        }
+                    };
+                backToTop();
+                $(window).on('scroll', function() {
+                    backToTop();
+                });
+                $('#back-to-top').on('click', function(e) {
+                    e.preventDefault();
+                    $('html,body').animate(
+                        {
+                            scrollTop: 0
+                        },
+                        700
+                    );
+                });
+            }
+            return this;
+        },
+        addCarousel: function(parentElementId, carouselId, carouselClass, carouselInterval, courselObjectArray) {
+            var courselInner = '';
+            for (var i = 0; i < courselObjectArray.length; i++) {
+                courselInner +=
+                    (i == 0 ? "<div class='carousel-item active'>" : "<div class='carousel-item'>") +
+                    '<a href=' +
+                    courselObjectArray[i].href +
+                    "target='_blank'> <img class='d-block w-100'" +
+                    'src=' +
+                    courselObjectArray[i].src +
+                    ' alt=' +
+                    courselObjectArray[i].alt +
+                    ' /> </a> </div>';
+            }
+            document.getElementById(parentElementId).innerHTML +=
+                '<div id=' +
+                carouselId +
+                'class=' +
+                carouselClass +
+                "data-ride='carousel' data-interval=" +
+                carouselInterval +
+                "> <div class='carousel-inner'> " +
+                courselInner +
+                '</div> </div>';
+
+            return this;
+        },
+        limitUnitMainPage: function() {
+            // give poweruser ability to bypass this restrictions
+            if (User.hasPowerUserAccess) return this;
+            if (window.location.href.indexOf('view.php?id=') > 0 && $('body.editing').length > 0) {
+                $("a[title='Set or change image']").css('display', 'none');
+                $("a[title='Edit summary']").css('display', 'none');
+                $("a[title='Move this section out of the grid']").css('display', 'none');
+                $('a.add-sections').css('display', 'none');
+                $("i[aria-label='Hide Quick Links block']").parent().hide();
+                $("i[aria-label='Hide Panopto block']").parent().hide();
+                $("i[aria-label='Hide Logged in user block']").parent().hide();
+            }
+            return this;
+        },
+        limitOtherUsers: function() {
+            if (window.location.href.indexOf('enrol/otherusers.php?id=') > 0) {
+                $("button[type='submit']").css('display', 'none');
+                $('a.assignrolelink').css('display', 'none');
+            }
+            return this;
+        },
+        changeDefaultImport: function() {
+            if (window.location.href.indexOf('backup/import.php') > 0) {
+                $("input[type='checkbox']").prop('checked', false);
+                $('input#id_setting_root_activities').prop('checked', true);
+            }
+            return this;
+        },
+        /**
+             * Replace
+             * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
+             */
+        changeNewActivityIcon: function() {
+            $('img.new_activity').attr('src', ' ');
+            return this;
+        },
+        /**
+             * Hide left-column blocks in pages (e.g., assignmnet and gradebook) to free up space for the iframe .
+             * @return {string} Console Log whether function is successfully executed (Passed) or thrown error (Error).
+             */
+        hideRightBlocks: function() {
+            if (
+                (window.location.href.indexOf('action=grading') > 0 &&
+                    window.location.href.indexOf('mod/assign/view.php') > 0) ||
+                window.location.href.indexOf('/grade/report/history/index.php') > 0 ||
+                window.location.href.indexOf('grade/report/grader/index.php') > 0
+            ) {
+                $("section[data-region='blocks-column']").hide();
+                $('section#region-main').removeClass('has-blocks');
+            }
+            return this;
+        }
+    };
+})();
+// Disable scale grade type from assignment
+  $("#id_grade_modgrade_type option[value='scale']")
+  .attr("disabled", "disabled")
+  .siblings().removeAttr("disabled");
+// ]]></script>
+</p>
+<!-- Javascript - END -->
+<p></p>
+<!-- CSS - START -->
+<style><!--
+/* Hide scale grade type option in assignment */
+#id_grade_modgrade_type option[value=scale]{
+  display: none;
+}
+
+/* Remove duplicated Topic heading (H3) from the grid view */
+
+.single-section .section-navigation h3.sectionname {
+    /*display: none !important;*/
+}
+
+/* Back to top button styling - Start */
+.btn-light {
+color: #ffffff;
+background-color: #006DAE;
+color: #fff !important;
+border-radius: 8px 0 0 8px !important;
+box-shadow: 0 8px 8px 0 rgba(0,0,0,.5);
+}
+
+.btn-light:hover {
+background: #3d90c2;
+color: white !important;
+}
+
+.btn-light:focus {
+background: #3d90c2 !important;
+color: white !important;
+box-shadow: none;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.btn-light:active {
+background: #3d90c2 !important;
+color: white !important;
+box-shadow: 0 0 0 0.2rem rgba(61, 144, 194, .5);
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+/* Back to top button styling - End */
+
+
+/* Add new activity button styling - Start */
+
+.btn-link.section-modchooser-link {
+background: #006DAE;
+color: white !important;
+font-size: 1rem;
+line-height: 1.5;
+padding: .375rem .75rem;
+vertical-align: middle;
+text-align: center;
+white-space: nowrap;
+border-radius: 2px;
+font-weight: 500;
+border: 2px solid transparent;
+box-shadow: 0 2px 5px 0 rgba(0,0,0,.5);
+text-decoration: none;
+}
+
+.btn-link.section-modchooser-link:hover {
+background: #3d90c2;
+color: white !important;
+cursor: pointer;
+}
+
+.btn-link.section-modchooser-link:focus {
+background: #3d90c2 !important;
+color: white !important;
+border-color: #3d90c2 !important;
+box-shadow: none;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn-link.section-modchooser-link:active {
+background: #3d90c2 !important;
+color: white !important;
+box-shadow: 0 0 0 0.2rem rgba(61, 144, 194, .5);
+border: 2px solid #3d90c2 !important;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+/* Add new activity button styling - End */
+
+
+.carousel-fade .carousel-item {
+	opacity: 0;
+	transition-property: opacity;
+	-webkit-transform: none;
+	transform: none;
+}
+
+.carousel-fade .carousel-item.active,
+.carousel-fade .carousel-item-next.carousel-item-left,
+.carousel-fade .carousel-item-prev.carousel-item-right {
+	z-index: 1;
+	opacity: 1;
+}
+
+.carousel-fade .active.carousel-item-left,
+.carousel-fade .active.carousel-item-right {
+	z-index: 0;
+	opacity: 0;
+	transition: 0s 0.6s opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.carousel-fade .active.carousel-item-left,
+	.carousel-fade .active.carousel-item-right {
+		transition: none;
+	}
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	z-index: 1;
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	width: 15%;
+	color: #ffffff;
+	text-align: center;
+	opacity: 0.5;
+	transition: opacity 0.15s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.carousel-control-prev,
+	.carousel-control-next {
+		transition: none;
+	}
+}
+
+.carousel-control-prev:hover,
+.carousel-control-prev:focus,
+.carousel-control-next:hover,
+.carousel-control-next:focus {
+	color: #000000;
+	text-decoration: none;
+	outline: 0;
+	opacity: 0.9;
+}
+
+.carousel-control-prev {
+	left: 0;
+}
+
+.carousel-control-next {
+	right: 0;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background: no-repeat 50% / 100% 100%;
+}
+
+.carousel-control-prev-icon {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 8 8'%3e%3cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3e%3c/svg%3e");
+}
+
+.carousel-control-next-icon {
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 8 8'%3e%3cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3e%3c/svg%3e");
+}
+
+/***** # 2.b. Block: Quick link *****/
+
+.quick-link-button {
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+	transition: all 0.7s cubic-bezier(.25, .8, .25, 1);
+	color: #006cab;
+	background: #ffffff;
+}
+
+.quick-link-button:hover {
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), 0 3px 3px rgba(0, 0, 0, 0.22);
+	color: #006cab;
+	text-decoration: none;
+	background: #f2f2f2;
+}
+
+/***** # 2.c. Content: Staff Profile under Unit Information *****/
+
+/* @Author: Rajib Uddin */
+
+.staffcard {
+	overflow: hidden;
+	position: relative;
+	border: 1px solid #fff;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	text-align: center;
+	padding: 10px 0;
+	background-image: linear-gradient(
+		to bottom,
+		#e8ebed,
+		#edeff1,
+		#f1f2f4,
+		#f6f6f8,
+		#fafafb,
+		#fafafb,
+		#fafafb,
+		#fafafb,
+		#f6f6f8,
+		#f1f2f4,
+		#edeff1,
+		#e8ebed
+	);
+	color: #000;
+	margin-bottom: 17px;
+	margin-right: -12px !important;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.staffcard .header-bg {
+	/* This stretches the canvas across the entire hero unit */
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100px;
+	border-bottom: 2px #fff solid;
+	/* This positions the canvas under the text */
+	z-index: 1;
+}
+
+.staffcard .avatar {
+	position: relative;
+	margin-top: 10px;
+	z-index: 100;
+}
+
+.staffcard .avatar img {
+	width: 150px;
+	height: 150px;
+	-webkit-border-radius: 50%;
+	-moz-border-radius: 50%;
+	border-radius: 50%;
+	border: 3px solid #fff;
+}
+
+/***** # 2.d. Main page: Grid box *****/
+
+/* @Author: Rajib Uddin */
+
+/* Grid box shadow and rollover */
+.format-grid .course-content ul.gridicons li .gridicon_link {
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+	transition: all 0.7s cubic-bezier(.25, .8, .25, 1);
+}
+
+.format-grid .course-content ul.gridicons li .gridicon_link:hover {
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), 0 3px 3px rgba(0, 0, 0, 0.22);
+}
+
+/*
+  * @Author: Greg Bird (@BirdyOz, greg.bird.oz@gmail.com)
+  * @First Created:   2019-01-15 16:05:23
+  * @Last Modified by:   birdyoz
+  * @Last Modified time: 2019-01-24 15:00:41
+  */
+/*
+  =============================================
+  2019 UI changes
+  =============================================
+  */
+
+/***** # 2.e. Content: Force hidden material to be dimmed *****/
+/* @Author: Greg Bird (@BirdyOz, greg.bird.oz@gmail.com) */
+
+/* Fade down hidden sections */
+
+li.section.hidden a,
+li.section.hidden .fa,
+li.section.hidden h1,
+li.section.hidden h2,
+li.section.hidden h3,
+li.section.hidden h4,
+li.section.hidden h5,
+li.section.hidden h6,
+div.dimmed_text a,
+div.dimmed_text .fa,
+div.dimmed_text h1,
+div.dimmed_text h2,
+div.dimmed_text h3,
+div.dimmed_text h4,
+div.dimmed_text h5,
+div.dimmed_text h6 {
+	opacity: 0.6 !important;
+}
+
+/***** # 2.f. Turn Editing On/Off *****/
+
+/* Position the editing on/off button */
+#edit-on-off {
+	position: absolute;
+	right: 15px;
+	top: 223px;
+}
+
+/* On smaller screens, hide button text and display pen icon only*/
+@media screen and (max-width: 600px) {
+	#edit-on-off:before {
+		font-family: FontAwesome;
+		content: "\f040";
+	}
+
+	#edit-on-off span {
+		display: none;
+	}
+}
+
+/***** # 2.g. Main page: Grid Format *****/
+@keyframes newActivity-pulse
+{
+  0% {
+    box-shadow: 0 0 0 0px rgba(239, 119, 1, 0.95);
+  }
+  100% {
+    box-shadow: 0 0 0 7px rgba(239, 119, 1, 0);
+  }
+}
+
+/* Fix positioning of 'New Activity' flag on grid format*/
+.format-grid .course-content ul.gridicons li img.new_activity {
+	/*
+        margin-left: 160px !important;
+	margin-top: 97px !important;
+	height: 15px;
+	width: 15px;
+	display: table-cell;
+	border-radius: 50%; */
+	   
+
+        background: #ef7701;
+        margin-left: 168px !important;
+	margin-top: 103px !important;
+        height: 7px;
+	width: 7px;
+	border-radius: 50%;
+	content: url("https://raw.githubusercontent.com/fitOnlineLearningSystems/moodle/master/New-Activity.png");
+        animation: newActivity-pulse 2s;
+        animation-iteration-count: 30;
+
+}
+
+/*
+#back-to-top {
+	position: fixed;
+	bottom: 30px;
+	right: 30px;
+	z-index: 9999;
+	font-size: 3em;
+	width: 32px;
+	height: 32px;
+	text-align: center;
+	line-height: 30px;
+	color: #0076b1;
+	cursor: pointer;
+	border: 0;
+	border-radius: 2px;
+	text-decoration: none;
+	transition: opacity 0.2s ease-out;
+	opacity: 0;
+}
+
+#back-to-top:hover,
+#back-to-top.show:hover {
+	opacity: 1;
+	transition: opacity 0.2s ease-out;
+}
+
+#back-to-top.show {
+	opacity: 0.5;
+}
+
+.sb-btn {
+	opacity: 0.5;
+	margin-right: 10px;
+	background: #0076b1;
+	font-weight: bold;
+	color: white;
+	text-align: center;
+	font-size: 1em;
+	padding: 4px 0 0 0;
+	border-radius: 6px;
+	right: 60px !important;
+}
+
+.sb-btn:after {
+	content: "FIT Online Support";
+}
+
+.sb-btn:hover {
+	opacity: 1;
+	transition: opacity 0.2s ease-out;
+}
+
+.sb-btn.en_bottom {
+	background-image: none;
+}
+*/
+
+/***** # 2.h. All pages: Customisation for Monash Color *****/
+/* @Author: Matt Chen */
+
+h3 span a,
+a,
+ul li a,
+.icon_content .list-group-item,
+.mdl-left a,
+.mdl-right a,
+.breadcrumb-item a,
+.section-title a,
+.mdl-left a,
+.column a,
+.page-link a,
+.page-item a {
+	color: #006cab;
+}
+
+#page-footer {
+	display: none;
+}
+
+.list-group-item.active,
+.list-group-item:hover {
+	background-color: #006cab;
+}
+
+.active .page-link {
+	background-color: #006cab;
+	color: #ffffff;
+}
+
+#icon2 {
+	color: #222222;
+}
+
+.iconhelp {
+	display: none;
+}
+
+#completionprogressid {
+	display: none;
+}
+
+
+
+/*inst2956050 is the Administration Menu all references affect the design of the Admin Block*/
+/*Changes the colour of the text and controls of the Admin Block to white*/
+#inst2956050 .action-menu, #inst2956050 .dropdown-toggle, #inst2956050 .moodle-core-dragdrop-draghandle, #inst484478 .action-menu,#inst484478 .dropdown-toggle, #inst484478 .moodle-core-dragdrop-handle {
+color: #4a4a4a !important;
+}
+/*Changes the margin of the links within the block to 0, reducing space*/
+#inst2956050 .card-text{
+margin: 0 !important;
+}
+/*Changes the colour and size of the links within the block while also removing the underline of the links*/
+#inst2956050 li a {
+color: #006DAE !important;
+text-decoration: none !important;
+font-size: 1.1rem !important;
+}
+/*Changes the colour of the links within the block on hover to be slightly lighter, so people can see which link they're about to click*/
+#inst2956050 li a:hover {
+color: #3D90C2 !important;
+text-decoration: none !important;
+}
+/*Changes the size and colour of the text in the sub menus of the block to match other links*/
+#inst2956050 span {
+font-size: 1.1rem !important;
+color: #006DAE !important;
+}
+/*Changes the size and colour of the text on hover in the sub menus of the block to match other links*/
+#inst2956050 span:hover {
+color: #3D90C2 !important;
+text-decoration: none !important;
+}
+/*Changes the colour of the background of the block header*/
+#instance-2956050-header {
+background: #f0f0f0 !important;
+color: #4a4a4a !important;
+text-align: center !important;
+}
+
+/*This adds a border the same colour as the header around the links*/
+div#settingsnav {
+border: 2px solid #f0f0f0 !important;
+border-radius: 5px !important;
+padding: 5px 0px 5px 0px !important;
+}
+/*the following three sets of styling hide this block that contains styling for the Admin block so that it isn't visible unless altered in the browser's inspector. Block instance-2373107*/
+#inst3098311 {
+box-shadow: none !important;
+height: 0px !important;
+margin: 0px !important;
+}
+#inst3098311 .action-menu, #inst3098311 .dropdown-toggle, #inst3098311 i {
+background: #fff !important;
+color: #fff !important;
+}
+#inst3098311 .card-title {
+background: #fff !important;
+display: none !important;
+}
+/*centres all HTML block card titles as well as the activity block and panopto block*/
+.block_html .card-title, .block_activity_modules .card-title, .block_panopto .card-title, .block_callista .card-title {
+text-align: left;
+}
+
+/*instance-484478 refers to the SETU block*/
+
+/*This changes the colour of the SETU block header and text*/
+#instance-484478-header {
+background: #f0f0f0 !important;
+color: #4a4a4a !important;
+text-align: left!important;
+}
+/*This adds a border the same colour as the header*/
+#inst484478 .card-text {
+border: 2px solid #f0f0f0 !important;
+border-radius: 5px !important;
+padding: 5px 0px 5px 0px !important;
+margin: 0.7rem !important;
+}
+/*This hides the navigation auto generated in Moodle to jump between sections to stop the space at the top and bottom or the screen getting cluttered. It also removes the navigation between activites to achieve the same purpose in activites*/
+#section-0 .addresourcemodchooser, #section-0 .addresourcedropdown {
+/*display: none !important;
+box-shadow: none !important;
+background: none !important;*/
+}
+.addresourcemodchooser {
+display: inline-flex !important;
+float: right !important;
+line-height: 1.5;
+vertical-align: middle;
+text-align: center;
+white-space: nowrap;
+font-weight: 500;
+border: 2px solid transparent;
+text-decoration: none;
+margin-bottom: 1.5rem;
+}
+.addresourcemodchooser a {
+color: white !important;
+text-decoration: none !important;
+background: #006DAE;
+line-height: 1.5;
+padding: .5rem .75rem;
+white-space: nowrap;
+font-weight: 500;
+border: 2px solid transparent;
+box-shadow: 0 2px 5px 0 rgba(0,0,0,.5); 
+border-radius: 2px;
+}
+.addresourcemodchooser a:hover {
+background: #3d90c2;
+color: white !important;
+cursor: pointer;
+}
+.addresourcemodchooser a:focus {
+background: #3d90c2 !important;
+color: white !important;
+border-color: #3d90c2 !important;
+box-shadow: none;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.addresourcemodchooser a:active {
+background: #3d90c2 !important;
+color: white !important;
+box-shadow: 0 0 0 0.2rem rgba(61, 144, 194, .5);
+border: 2px solid #3d90c2 !important;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.section-navigation .mdl-right, .section-navigation .mdl-left, .addresourcedropdown, .jumpmenu {
+/*display: none !important;*/
+color: #fff !important;
+}
+.addresourcedropdown, .jumpmenu {
+display: none !important;
+color: #fff !important;
+}
+/*  Hides gradebook icon from the hamburger menu */
+/*.list-group-item:nth-child(3) {
+display: none !important;
+}*/
+/*This is the styling for a Bootstrap button that contains the colours used in the Navigation Banner. It should be used in conjunction with the classes .btn and .btn-default to work similarly to Bootstrap buttons.*/
+.btn-it {
+background: #006DAE;
+color: white !important;
+font-size: 1rem;
+line-height: 1.5;
+padding: .375rem .75rem;
+vertical-align: middle;
+text-align: center;
+white-space: nowrap;
+border-radius: 2px;
+font-weight: 500;
+border: 2px solid transparent;
+box-shadow: 0 2px 5px 0 rgba(0,0,0,.5);
+text-decoration: none;
+}
+.btn-it:hover {
+background: #3d90c2;
+color: white !important;
+cursor: pointer;
+}
+.btn-it:focus {
+background: #3d90c2 !important;
+color: white !important;
+border-color: #3d90c2 !important;
+box-shadow: none;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.btn-it:active {
+background: #3d90c2 !important;
+color: white !important;
+box-shadow: 0 0 0 0.2rem rgba(61, 144, 194, .5);
+border: 2px solid #3d90c2 !important;
+transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+.bg-it {
+background: #006DAE;
+color: white;
+}
+.alert-it {
+background: rgb(0,108,171);
+border: 30px solid #006DAE;
+color: #fff !important;
+}
+.alert-it-red { 
+background: #f85a40; 
+border: 30px solid #f85a40; 
+color: #fff !important;
+opacity: 0.8 !important;
+}
+.alert-it-blue { 
+background: #006cab; 
+border: 30px solid #006cab; 
+color: #fff !important;
+opacity: 0.8 !important;}
+
+.alert-it-important { 
+background: #fbb034; 
+border: 30px solid #fbb034; 
+color: #fff !important;
+opacity: 0.9 !important;
+}
+
+.alert-it-red h4 {
+	color: #fff !important;
+}
+
+.alert-it-blue h3 {
+	color: #fff !important;
+}
+
+.alert-it-blue h4 {
+	color: #fff !important;
+}
+
+.alert-it-important h4 {
+	color: #fff !important;
+}
+
+.border-it {
+border: 5px solid #006DAE;
+}
+
+.border-it-3 {
+border: 3px solid #006dae;
+}
+
+.text-it {
+color: #006DAE !important;
+}
+.tooltip-it {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.tooltip-it .tooltiptext-it {
+  visibility: hidden !important;
+  width: 100% !important;
+  background-color: rgba(0, 109, 174, .25) !important;
+  color: #000 !important;
+  text-align: center !important;
+  border-radius: 5px !important;
+  padding: 10px 0 !important;
+  position: absolute !important;
+  z-index: 1 !important;
+  bottom: 125% !important;
+  left: 50% !important;
+  margin-left: -60px !important;
+  opacity: 0 !important;
+  transition: opacity 0s !important;
+  border: 1px solid rgba(0, 109, 174, 1);
+}
+
+.tooltip-it .tooltiptext-it::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  margin-left: -5px !important;
+}
+
+.tooltip-it:hover .tooltiptext-it {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+.mceLayout {
+  width:100% !important;
+}
+--></style>
+<!-- Code prepared by Matt Chen - START -->
+<style><!--
+.list-group-item:nth-child(3) {
+    display: inherit !important;
+}
+--></style>
+<!-- Code prepared by Matt Chen - END -->
+<p></p>
+<!-- CSS - END -->
+<p></p>
+<!-- CSS - PREPARED BY RAJIB - S1 2021 - START -->
+<style><!--
+.alert-it-blue { 
+background: #246DAE;
+border: 0px; 
+color: #fff !important;
+opacity: 1 !important;
+/*border-left: 10px solid #C8008F;*/
+border-left: 10px solid #333333;
+padding:15px;
+}
+
+.hr-alert-it-blue {
+border-top: 1px dotted #6090ba;
+}
+
+.alert-it-blue a {
+color: #fff !important;
+text-decoration: underline !important;
+font-weight: bold !important;
+}
+
+.alert-it-red { 
+background: #af272f; 
+/*background: #D93F00;*/
+border: 0px; 
+color: #fff !important;
+opacity: 1 !important;
+/*border-left: 10px solid #5A5A5A;*/
+border-left: 10px solid #333333;
+padding:15px;
+}
+
+.hr-alert-it-red {
+border-top: 1px dotted #999999;
+}
+
+.alert-it-red a {
+color: #fff !important;
+text-decoration: underline !important;
+font-weight: bold !important;
+}
+
+.alert-it-important { 
+/*background: #5C227A; */
+background: #8177B4;
+border: 0px; 
+color: #fff !important;
+opacity: 1 !important;
+/*border-left: 10px solid #f9b82d;*/
+border-left: 10px solid #333333;
+padding:15px;
+}
+
+.hr-alert-it-important {
+border-top: 1px dotted #999999;
+}
+
+.alert-it-important a {
+color: #fff !important;
+text-decoration: underline !important;
+font-weight: bold !important;
+}
+
+/*Font awesome icon animation - Start*/
+/* BELL */
+
+@-webkit-keyframes ring {
+  0% {
+    -webkit-transform: rotate(-15deg);
+    transform: rotate(-15deg);
+  }
+
+  2% {
+    -webkit-transform: rotate(15deg);
+    transform: rotate(15deg);
+  }
+
+  4% {
+    -webkit-transform: rotate(-18deg);
+    transform: rotate(-18deg);
+  }
+
+  6% {
+    -webkit-transform: rotate(18deg);
+    transform: rotate(18deg);
+  }
+
+  8% {
+    -webkit-transform: rotate(-22deg);
+    transform: rotate(-22deg);
+  }
+
+  10% {
+    -webkit-transform: rotate(22deg);
+    transform: rotate(22deg);
+  }
+
+  12% {
+    -webkit-transform: rotate(-18deg);
+    transform: rotate(-18deg);
+  }
+
+  14% {
+    -webkit-transform: rotate(18deg);
+    transform: rotate(18deg);
+  }
+
+  16% {
+    -webkit-transform: rotate(-12deg);
+    transform: rotate(-12deg);
+  }
+
+  18% {
+    -webkit-transform: rotate(12deg);
+    transform: rotate(12deg);
+  }
+
+  20%, 100% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes ring {
+  0% {
+    -webkit-transform: rotate(-15deg);
+    transform: rotate(-15deg);
+  }
+
+  2% {
+    -webkit-transform: rotate(15deg);
+    transform: rotate(15deg);
+  }
+
+  4% {
+    -webkit-transform: rotate(-18deg);
+    transform: rotate(-18deg);
+  }
+
+  6% {
+    -webkit-transform: rotate(18deg);
+    transform: rotate(18deg);
+  }
+
+  8% {
+    -webkit-transform: rotate(-22deg);
+    transform: rotate(-22deg);
+  }
+
+  10% {
+    -webkit-transform: rotate(22deg);
+    transform: rotate(22deg);
+  }
+
+  12% {
+    -webkit-transform: rotate(-18deg);
+    transform: rotate(-18deg);
+  }
+
+  14% {
+    -webkit-transform: rotate(18deg);
+    transform: rotate(18deg);
+  }
+
+  16% {
+    -webkit-transform: rotate(-12deg);
+    transform: rotate(-12deg);
+  }
+
+  18% {
+    -webkit-transform: rotate(12deg);
+    transform: rotate(12deg);
+  }
+
+  20%, 100% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+
+.faa-ring.animated,
+.faa-ring.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-ring {
+  -webkit-animation: ring 2s ease infinite;
+  animation: ring 2s ease infinite;
+  transform-origin-x: 50%;
+  transform-origin-y: 0px;
+  transform-origin-z: initial;
+}
+
+.faa-ring.animated.faa-fast,
+.faa-ring.animated-hover.faa-fast:hover,
+.faa-parent.animated-hover:hover > .faa-ring.faa-fast {
+  -webkit-animation: ring 1s ease infinite;
+  animation: ring 1s ease infinite;
+}
+
+.faa-ring.animated.faa-slow,
+.faa-ring.animated-hover.faa-slow:hover,
+.faa-parent.animated-hover:hover > .faa-ring.faa-slow {
+  -webkit-animation: ring 3s ease infinite;
+  animation: ring 3s ease infinite;
+}
+
+/* VERTICAL */
+
+@-webkit-keyframes vertical {
+  0% {
+    -webkit-transform: translate(0,-3px);
+    transform: translate(0,-3px);
+  }
+
+  4% {
+    -webkit-transform: translate(0,3px);
+    transform: translate(0,3px);
+  }
+
+  8% {
+    -webkit-transform: translate(0,-3px);
+    transform: translate(0,-3px);
+  }
+
+  12% {
+    -webkit-transform: translate(0,3px);
+    transform: translate(0,3px);
+  }
+
+  16% {
+    -webkit-transform: translate(0,-3px);
+    transform: translate(0,-3px);
+  }
+
+  20% {
+    -webkit-transform: translate(0,3px);
+    transform: translate(0,3px);
+  }
+
+  22%, 100% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+}
+
+@keyframes vertical {
+  0% {
+    -webkit-transform: translate(0,-3px);
+    transform: translate(0,-3px);
+  }
+
+  4% {
+    -webkit-transform: translate(0,3px);
+    transform: translate(0,3px);
+  }
+
+  8% {
+    -webkit-transform: translate(0,-3px);
+    transform: translate(0,-3px);
+  }
+
+  12% {
+    -webkit-transform: translate(0,3px);
+    transform: translate(0,3px);
+  }
+
+  16% {
+    -webkit-transform: translate(0,-3px);
+    transform: translate(0,-3px);
+  }
+
+  20% {
+    -webkit-transform: translate(0,3px);
+    transform: translate(0,3px);
+  }
+
+  22%, 100% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+}
+
+.faa-vertical.animated,
+.faa-vertical.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-vertical {
+  -webkit-animation: vertical 2s ease infinite;
+  animation: vertical 2s ease infinite;
+}
+
+.faa-vertical.animated.faa-fast,
+.faa-vertical.animated-hover.faa-fast:hover,
+.faa-parent.animated-hover:hover > .faa-vertical.faa-fast {
+  -webkit-animation: vertical 1s ease infinite;
+  animation: vertical 1s ease infinite;
+}
+
+.faa-vertical.animated.faa-slow,
+.faa-vertical.animated-hover.faa-slow:hover,
+.faa-parent.animated-hover:hover > .faa-vertical.faa-slow {
+  -webkit-animation: vertical 4s ease infinite;
+  animation: vertical 4s ease infinite;
+}
+
+/* HORIZONTAL */
+
+@-webkit-keyframes horizontal {
+  0% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+
+  6% {
+    -webkit-transform: translate(5px,0);
+    transform: translate(5px,0);
+  }
+
+  12% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+
+  18% {
+    -webkit-transform: translate(5px,0);
+    transform: translate(5px,0);
+  }
+
+  24% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+
+  30% {
+    -webkit-transform: translate(5px,0);
+    transform: translate(5px,0);
+  }
+
+  36%, 100% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+}
+
+@keyframes horizontal {
+  0% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+
+  6% {
+    -webkit-transform: translate(5px,0);
+    transform: translate(5px,0);
+  }
+
+  12% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+
+  18% {
+    -webkit-transform: translate(5px,0);
+    transform: translate(5px,0);
+  }
+
+  24% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+
+  30% {
+    -webkit-transform: translate(5px,0);
+    transform: translate(5px,0);
+  }
+
+  36%, 100% {
+    -webkit-transform: translate(0,0);
+    transform: translate(0,0);
+  }
+}
+
+.faa-horizontal.animated,
+.faa-horizontal.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-horizontal {
+  -webkit-animation: horizontal 2s ease infinite;
+  animation: horizontal 2s ease infinite;
+}
+
+.faa-horizontal.animated.faa-fast,
+.faa-horizontal.animated-hover.faa-fast:hover,
+.faa-parent.animated-hover:hover > .faa-horizontal.faa-fast {
+  -webkit-animation: horizontal 1s ease infinite;
+  animation: horizontal 1s ease infinite;
+}
+
+.faa-horizontal.animated.faa-slow,
+.faa-horizontal.animated-hover.faa-slow:hover,
+.faa-parent.animated-hover:hover > .faa-horizontal.faa-slow {
+  -webkit-animation: horizontal 3s ease infinite;
+  animation: horizontal 3s ease infinite;
+}
+
+/* FLASHING */
+
+@-webkit-keyframes flash {
+  0%, 100%, 50% {
+    opacity: 1;
+  }
+
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+@keyframes flash {
+  0%, 100%, 50% {
+    opacity: 1;
+  }
+
+  25%, 75% {
+    opacity: 0;
+  }
+}
+
+.faa-flash.animated,
+.faa-flash.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-flash {
+  -webkit-animation: flash 2s ease infinite;
+  animation: flash 2s ease infinite;
+}
+
+.faa-flash.animated.faa-fast,
+.faa-flash.animated-hover.faa-fast:hover,
+.faa-parent.animated-hover:hover > .faa-flash.faa-fast {
+  -webkit-animation: flash 1s ease infinite;
+  animation: flash 1s ease infinite;
+}
+
+.faa-flash.animated.faa-slow,
+.faa-flash.animated-hover.faa-slow:hover,
+.faa-parent.animated-hover:hover > .faa-flash.faa-slow {
+  -webkit-animation: flash 3s ease infinite;
+  animation: flash 3s ease infinite;
+}
+
+/* PULSE */
+
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+
+  50% {
+    -webkit-transform: scale(0.8);
+    transform: scale(0.8);
+  }
+
+  100% {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+
+  50% {
+    -webkit-transform: scale(0.8);
+    transform: scale(0.8);
+  }
+
+  100% {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+}
+
+.faa-pulse.animated,
+.faa-pulse.animated-hover:hover,
+.faa-parent.animated-hover:hover > .faa-pulse {
+  -webkit-animation: pulse 2s linear infinite;
+  animation: pulse 2s linear infinite;
+}
+
+.faa-pulse.animated.faa-fast,
+.faa-pulse.animated-hover.faa-fast:hover,
+.faa-parent.animated-hover:hover > .faa-pulse.faa-fast {
+  -webkit-animation: pulse 1s linear infinite;
+  animation: pulse 1s linear infinite;
+}
+
+.faa-pulse.animated.faa-slow,
+.faa-pulse.animated-hover.faa-slow:hover,
+.faa-parent.animated-hover:hover > .faa-pulse.faa-slow {
+  -webkit-animation: pulse 3s linear infinite;
+  animation: pulse 3s linear infinite;
+}
+/*Font awesome icon animation - End*/
+
+
+/* Content box with left border only - Start */
+.content-box-left-border {
+border-left: 5px solid #008A25; 
+padding-left: 10px;
+}
+/* Content box with left border only - End */
+
+
+/* Grid image rollover effect - Start */
+.course-content ul.gridicons li img {
+transition: all 0.5s;
+transition-timing-function: ease-out;
+transform: scale(1);
+}
+.course-content ul.gridicons li img:hover {
+transform: scale(1.1);
+
+/* Grid image rollover effect - End */
+
+
+/*.course-content ul.gridicons li img:hover {
+-webkit-transform: rotateY(360deg);
+transform: rotateY(360deg);
+transition: transform 1s;
+transform-style: preserve-3d;
+-webkit-backface-visibility: visible;
+backface-visibility: visible;
+}*/
+--></style>
+<!-- CSS - PREPARED BY RAJIB - S1 2021 - END -->
+<p></p>
+<!-- CODE TO BE MOVED IN GITHUB - END -->
+<p>
+<script type="text/javascript">// <![CDATA[
+setTimeout(function() {}, 4000);
+// ]]></script>
+</p>
+<!-- # 1. Import external libraries -->
+<p></p>
+<!-- FONTAWESOME -->
+<p><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/all.css" /> <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.14.0/css/v4-shims.css" /></p>
+<script src="https://use.fontawesome.com/releases/v5.14.0/js/all.js" type="text/javascript"></script>
+<script src="https://use.fontawesome.com/releases/v5.14.0/js/v4-shims.js" type="text/javascript"></script>
+<!-- BEEST -->
+<p><link rel="stylesheet" href="https://mon-arts-ed-des.github.io/BEEST/css/monashElements.css" /></p>
+<!--BEEST for Moodle administrators only-->
+<script src="https://mon-arts-ed-des.github.io/BEEST/js/beestForAnyRole_All_Lect_Admin.js" type="text/javascript"></script>
+<script type="text/javascript">// <![CDATA[
+window.onload=function(){setup_beest(match_lect,{button:true,iFrame:true})}
+// ]]></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" type="text/javascript"></script>
+<p><link rel="stylesheet" href="https://mahara.infotech.monash.edu/moodle/js/highlight/agate.min.css" /></p>
+<p>
+<script src="https://mahara.infotech.monash.edu/moodle/js/highlight/highlight.min.js" type="text/javascript"></script>
+<script type="text/javascript">// <![CDATA[
+// JQuery - on page load
+$(function () {
+  FITMOODLE.init();
+
+  FITMOODLE.setMoodleBaseUrl('https://lms.monash.edu')
+          .setMoodlePowerUsers(
+            ['jamie.fulcher@monash.edu',
+              'margot.schuhmacher@monash.edu',
+              'matt.chen@monash.edu',
+              'milad.sayad@monash.edu',
+              'rajib.uddin@monash.edu',
+              'jaime.clark@monash.edu',
+              'phillip.abramson@monash.edu'], 
+              "&restriction=off")
+          .setUnitGuideBaseUrl('https://handbook.monash.edu/')
+          .setUnitGuideSearchUrl('faculty=FACULTY+OF+INFORMATION+TECHNOLOGY')
+          .setTeachingPeriodsDictionary ({
+            S1: 'S1-01',
+            S2: 'S2-01',
+            FY: 'FY-01',
+            'S2-S1': 'S2-S1-02',
+            'S2-SS': 'S2-SS-02',
+            SSA: 'SSA-02',
+            SSB: 'SSB-01',
+            'OCT-MY': 'OCT-MY-01',
+            T3: 'T3-57',
+            WS: 'WS-01',
+            'MO-TP1': 'MO-TP1-01',
+            'MO-TP2': 'MO-TP2-01',
+            'MO-TP3': 'MO-TP3-01',
+            'MO-TP4': 'MO-TP4-01',
+            'MO-TP5': 'MO-TP5-01',
+            'MO-TP6': 'MO-TP6-01'})
+          .addTurnEditingButton()
+          .limitUnitMainPage()
+          .changeNewActivityIcon()
+          .hideRightBlocks()
+          .limitOtherUsers()
+          .changeDefaultImport()
+          .addUnitPreviews()
+          .addUnitGuide()
+          .addMyGrades()
+          .addStudentPortal()
+          
+          //.addBackToTop()
+          //.addSupportBee()
+});
+// ]]></script>
+<!------------GREG'S CODE - 2021 - START ----------->
+<script type="text/javascript">// <![CDATA[
+/*
+ * @Author: Greg Bird (@BirdyOz, greg.bird.oz@gmail.com)
+ * @First Created:   2019-01-15 16:04:39
+ * @Last Modified by:   Greg Bird
+ * @Last Modified time: 2021-01-27 15:17:43
+ *
+ *
+ * NOTE TO FIT Administators:
+ * This script includes code to limit the enrolment options for lecturers.
+ * To bypass this, add staff email details to the 'allowed_users' array,
+ * OR append the URL to include '&limit_enrolment=off'
+ */
+
+
+
+
+// JQuery - on page load
+$(function() {
+    // Define text to graders
+    add_text_to_grader();
+    limit_enrolment_options();
+});
+
+function add_text_to_grader() {
+    // If I am on the Grader report - View or setup tabs
+    if (window.location.href.indexOf('/grade/report/grader/index.php') > 0 || window.location.href.indexOf('/local/gradebook_reskin/index.php') > 0) {
+
+        var text_to_grader = '<div class="container-fluid p-l-1"><div class="row"><div class="col-auto alert alert-danger p-r-1 p-l-1 rounded-left"> <i aria-hidden="true" class="fa fa-bullhorn fa-2x faa-horizontal animated align-middle"></i></div><div class="col w-100 alert alert-warning p-2 align-middle rounded-right"><div><i aria-hidden="true" class="fa fa-exclamation-triangle"></i> Numerical marks for in-semester assessment must be made available in Moodle</div><div><i aria-hidden="true" class="fa fa-exclamation-triangle"></i> Grade type must be set to point (NOT scale) for all assessed gradebook items</div></div></div></div>';
+        $(".grade-navigation").before(text_to_grader);
+    }
+}
+
+
+function limit_enrolment_options() {
+    //If I am on the enrolment screem and I DO NOT have "limit_enrolment=off"
+    if (window.location.href.indexOf("user/index.php?id=") > 0 & window.location.href.indexOf("limit_enrolment=off") < 0) {
+
+        // Determine current user
+        var curr_userid = $('.logininfo');
+        console.log("@GB: curr_userid = ", curr_userid);
+
+
+        var fit_email = $('.myprofileitem>a').text().toLowerCase();
+        console.log("@GB: fit_email = ", fit_email);
+
+        // whitelist of allowed users who DO NOT have the enrolment restriction
+        var allowed_users = [
+            "jamie.fulcher@monash.edu",
+            "margot.schuhmacher@monash.edu",
+            "matt.chen@monash.edu",
+            "milad.sayad@monash.edu",
+            "rajib.uddin@monash.edu"
+        ];
+
+        if ($.inArray(fit_email, allowed_users) !== -1) {
+            // I am an allowed user
+            console.log("@GB: allowed_users = ", allowed_users);
+        } else {
+            // I am NOT an allowed user so restrict my access
+
+            //find all role chnages (pen symbol)
+            var change_role = $('.inplaceeditable');
+            $.each(change_role, function(index, val) {
+                // Extract roles as string
+                txt = $(this).attr('data-options');
+                console.log("@GB: txt = ", txt);
+                // If roles include "Lecturer" (including quotes)
+                if ((txt.indexOf('"Lecturer"') !== -1) || (txt.indexOf('"Chief Examiner"') !== -1)) {
+                    // Remove lecturer role from JSON string
+                    txt = txt.replace('{"key":3,"value":"Lecturer"},', '');
+                    // Inject string back in as attributes.
+                    // This will remove "lecturer" from the dropdown list
+                    txt = $(this).attr('data-options', txt)
+                }
+            });
+
+            // Listen for mouse click on 'Enrol users' button
+            $(".enrol_manual_plugin").click(function() {
+                // Wait 2 secs while the list loads
+                setTimeout(function() {
+                    var options = $('select#id_roletoassign option');
+                    if (options.length > 0) {
+                        $.each(options, function(index, val) {
+                            txt = $(this).text();
+                            // Assign role includes "Lecturer"
+                            if (txt == "Lecturer") {
+                                console.log("@GB: Lecturer found");
+                                $(this).remove();
+                                console.log("@GB: Lecturer removed");
+                            }
+                        });
+                    }
+
+                }, 2000);
+            });
+        }
+    }
+
+}
+// ]]></script>
+<!------------GREG'S CODE - 2021 - END -------------></p>
+<div>
+<div id="QuickLink"></div>
+<div id="QuickLinkCarousel"></div>
+<!-- Slider Start -->
+<div id="carouselExampleFade" class="carousel slide carousel-fade" data-ride="carousel" data-interval="12000">
+<div class="carousel-inner"><!-- TEACHING AWARD NOMINATION - START-->
+<div class="carousel-item active"><a href="https://lms.monash.edu/mod/page/view.php?id=6065347" target="_blank"> <img class="d-block w-100" src="https://lms.monash.edu/draftfile.php/5777508/user/draft/361257529/Teaching-Award-1.png" alt="Teaching Award Nominations" /> </a></div>
+<div class="carousel-item"><a href="https://lms.monash.edu/mod/page/view.php?id=6065347" target="_blank"> <img class="d-block w-100" src="https://lms.monash.edu/draftfile.php/5777508/user/draft/361257529/Teaching-Award-2-2021.png" alt="Teaching Award Nominations" /> </a></div>
+<!-- TEACHING AWARD NOMINATION - END--></div>
+<a class="carousel-control-prev" href="#carouselExampleFade" role="button" data-slide="prev"> <span class="carousel-control-prev-icon" aria-hidden="true"></span> <span class="sr-only">Previous</span> </a> <a class="carousel-control-next" href="#carouselExampleFade" role="button" data-slide="next"> <span class="carousel-control-next-icon" aria-hidden="true"></span> <span class="sr-only">Next</span> </a></div>
+<!-- Slider End --></div>
+<!---Building Quick Links block - End -->
+<p></p>
